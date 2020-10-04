@@ -1,0 +1,7 @@
+(library
+ (name sesame)
+ (public_name sesame)
+ (libraries core yaml tyxml fmt fmt.tty jekyll-format camlimages.png
+   camlimages.jpeg)
+ (preprocess
+  (pps tyxml-ppx ppx_deriving_yaml)))
