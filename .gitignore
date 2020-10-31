@@ -2,3 +2,4 @@ _build
 .merlin
 examples
 .vscode 
+.DS_Store

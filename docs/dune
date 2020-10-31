@@ -1,0 +1,5 @@
+(executable
+ (name build)
+ (libraries tyxml sesame)
+ (preprocess
+  (pps tyxml-ppx ppx_deriving_yaml)))

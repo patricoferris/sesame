@@ -22,6 +22,9 @@ module Image = Image
 module Files = Files
 (** A small library for handling files *)
 
+module Utils = Utils
+(** A small collection of useful utility functions *)
+
 (** {2 Checking}*)
 
 module Access = Access

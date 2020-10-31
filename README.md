@@ -1,7 +1,7 @@
 Sesame 🌱
 ---------
 
-A library of tools for building smaller, greener, less resource intensive website and blogs inspired by [Low Tech Magazine](https://solar.lowtechmagazine.com/)
+A library of tools for building smaller, greener, less resource intensive website and blogs inspired by [Low Tech Magazine](https://solar.lowtechmagazine.com/). A very basic example exists inside `./docs`. 
 
 ## User Guide
 

@@ -1,11 +1,18 @@
 module type S = sig
   type t
 
+  val build_single : path:string -> out:string -> unit
+
   val build_html : src_dir:string -> dest_dir:string -> t list
 end
 
 module Make (C : Collection.S) = struct
   type t = C.t
+
+  let build_single ~path ~out =
+    match C.v ~file:path with
+    | Ok v -> Files.output_html ~doc:(C.to_html v) ~path:out
+    | Error (`Msg m) -> failwith ("Failed making: " ^ path ^ " because " ^ m)
 
   let build_html ~src_dir ~dest_dir =
     let fs =

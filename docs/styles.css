@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+html, body {
+  line-height: 1.6em;
+  font-size: 1.05em;
+  font-family: 'Space Mono', 'Courier New', Courier, monospace;
+}
+
+pre {
+  color: white;
+  background-color: black;
+  padding: 1em;
+  border-radius: 5px;
+}
+
+nav {
+  float: right;
+}
+
+nav ul li {
+  display: inline-block;
+  margin: 0 22px;
+}
+
+.hero {
+  width: 100%
+}
+
+p {
+  font-weight: 500;
+}
+
+code {
+  font-family: 'Space Mono', 'Courier New', Courier, monospace;
+}
+
+p code, li code {
+  background-color: rgb(241, 186, 65);
+  border-radius: 2px;
+}
+
+.content h1, .content h2 {
+  border-bottom: 1px solid gray;
+  padding-bottom: .67em;
+}
+
+.content {
+  width: 60%;
+  padding: 0 20%;
+  max-width: 1000px;
+  margin: auto;
+}
