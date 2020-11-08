@@ -10,7 +10,7 @@ credit: "Image by Simon Matzinger and can be found on Pexels by searching Camel"
 
 A simple blogpost example. 
 
-The original file image was `1.7m` this `Sesame` generated one is only `40k`. 
+The original image file was `1.7m` this `Sesame` generated one is only `40k`. 
 
 ```ocaml
 let () = print_endline "Hello World" 
@@ -29,4 +29,4 @@ This check catches the following mistake at build time:
 
 ### Header
 
-A `H1` followed by an `H3` is an example of bad nesting, you can read more about it in [the web accessibility guidelines](https://webaim.org/techniques/semanticstructure/) on semantic structure.
+An `H1` followed by an `H3` is an example of bad nesting, you can read more about it in [the web accessibility guidelines](https://webaim.org/techniques/semanticstructure/) on semantic structure.
