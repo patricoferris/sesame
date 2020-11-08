@@ -3,6 +3,8 @@ Sesame 🌱
 
 A library of tools for building smaller, greener, less resource intensive website and blogs inspired by [Low Tech Magazine](https://solar.lowtechmagazine.com/). A very basic example exists inside `./docs`. 
 
+[Example Site and API Documentation](https://patricoferris.github.io/sesame/)
+
 ## User Guide
 
 Sesame is built on the idea of `Collection`s -- these are groups of documents that share common meta-data. The should be formatted using the [Jekyll Format](https://jekyllrb.com/docs/front-matter/) with `yaml` front-matter separating the body from the meta-data. It exposes functors to build a `Collection` from an OCaml description of the meta-data.

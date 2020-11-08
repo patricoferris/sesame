@@ -45,7 +45,7 @@ module Blog_collection = struct
             "</div>"];
       ]
     in
-    Components.html ~lang:"en" ~css:"/sesame/styles" ~title:t.meta.title
+    Components.html ~lang:"en" ~css:"/sesame/styles.css" ~title:t.meta.title
       ~description:"Sesame: simple static site generator" ~body
 
   let index_html ts =
@@ -74,7 +74,7 @@ module Blog_collection = struct
         [%html "<div class='content'><ul>" ts "</ul></div>"];
       ]
     in
-    Components.html ~lang:"en" ~css:"/sesame/styles" ~title:"Blog"
+    Components.html ~lang:"en" ~css:"/sesame/styles.css" ~title:"Blog"
       ~description:"Blog index page" ~body
 end
 
