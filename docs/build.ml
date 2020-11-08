@@ -35,6 +35,10 @@ module Blog_collection = struct
           [ Html.txt t.meta.author ] " on " [ Html.txt t.meta.date ]
           "</p></div>"]
     in
+    let md = body_md t in
+    let _access_header_check =
+      Checks.check ~exit:false "Headers" Access.well_nested_headers md
+    in
     let body = Tyxml.Html.Unsafe.data (body_md t |> Omd.to_html) in
     let body =
       [
@@ -57,7 +61,7 @@ module Blog_collection = struct
              print_endline t.path;
              [%html
                "<li><h3><a href="
-                 ("/" ^ Files.to_html ~path:t.path)
+                 ("/sesame/" ^ Files.to_html ~path:t.path)
                  ">" [ Html.txt t.meta.title ] "</a></h3><p>"
                  [ Html.txt t.meta.description ]
                  "...</p></li>"])

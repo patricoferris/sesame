@@ -42,7 +42,7 @@ let checker (type a) (c : a checkable) =
 let check ?(exit = true) msg checkable t =
   let open Pp in
   let b = checker checkable @@ t in
-  if b then (
+  if b then Fmt.(pf stdout "[ %a ] %s" pass "PASS" msg)
+  else (
     Fmt.(pf stdout "[ %a ] %s\n %a" fail "FAIL" msg (pp checkable) t);
     if exit then raise Check_error else ())
-  else Fmt.(pf stdout "[ %a ] %s" pass "PASS" msg)

@@ -62,6 +62,20 @@ B.build ~src_dir:"blog" ~dest_dir:"./dist/blog"
 
 And that's all there is to it. 
 
+## Accessibility Checks 
+
+Sesame supports a limited (but hopefully growing) number of accessibility checks at build time on the Markdown and HTML trees. For example: 
+
+```ocaml
+(** Check properly nested headings, but don't fail the build *)
+let _access_header_check =
+      Checks.check ~exit:false "Headers" Access.well_nested_headers md
+```
+
+A `H1` followed by an `H3` is an example of bad nesting, you can read more about it in [the web accessibility guidelines](https://webaim.org/techniques/semanticstructure/) on semantic structure.
+
+The infrastructure around access checks is completely ~~stolen~~ inspired by [Alcotest](https://github.com/mirage/alcotest).
+
 ## Images 
 
 One of the biggest sources of website size (and therefore energy consumption and time spent waiting) are in the images. They tend to be large files. Sesame exposes an `Image` module which can perform some optimisations on a directory containing images. Common operations are resizing, dithering and converting to use less colours.
