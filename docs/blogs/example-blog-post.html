@@ -38,15 +38,16 @@
    </p>
    <p>A simple blogpost example.</p>
 <p>The original file image was <code>1.7m</code> this <code>Sesame</code> generated one is only <code>40k</code>.</p>
-<h1>Bad nesting</h1>
-<p>Bad heading tm</p>
-<h3>Header</h3>
 <pre><code class="language-ocaml">let () = print_endline &quot;Hello World&quot; 
 </code></pre>
 <p>Another thing that is cool, is that the build process has (limited) accessibility checks built-in!</p>
 <pre><code class="language-ocaml">let _access_header_check =
       Checks.check ~exit:false &quot;Headers&quot; Access.well_nested_headers md
 </code></pre>
+<p>This check catches the following mistake at build time:</p>
+<h1>Bad nesting</h1>
+<h3>Header</h3>
+<p>A <code>H1</code> followed by an <code>H3</code> is an example of bad nesting, you can read more about it in <a href="https://webaim.org/techniques/semanticstructure/">the web accessibility guidelines</a> on semantic structure.</p>
 
   </div>
             

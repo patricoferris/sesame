@@ -74,8 +74,7 @@ module Blog_collection = struct
     let body =
       [
         Comps.navbar;
-        description;
-        [%html "<div class='content'><ul>" ts "</ul></div>"];
+        [%html "<div class='content'>" [ description ] "<ul>" ts "</ul></div>"];
       ]
     in
     Components.html ~lang:"en" ~css:"/sesame/styles.css" ~title:"Blog"
