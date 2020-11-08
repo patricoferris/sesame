@@ -45,7 +45,8 @@ module Blog_collection = struct
             "</div>"];
       ]
     in
-    Components.html ~lang:"en" ~title:t.meta.title ~description:"" ~body
+    Components.html ~lang:"en" ~css:"/sesame/styles" ~title:t.meta.title
+      ~description:"Sesame: simple static site generator" ~body
 
   let index_html ts =
     let open Tyxml in
@@ -73,8 +74,8 @@ module Blog_collection = struct
         [%html "<div class='content'><ul>" ts "</ul></div>"];
       ]
     in
-    Components.html ~lang:"en" ~title:"Blog" ~description:"Blog index page"
-      ~body
+    Components.html ~lang:"en" ~css:"/sesame/styles" ~title:"Blog"
+      ~description:"Blog index page" ~body
 end
 
 module Blog_builder = Build.Make (Blog_collection)

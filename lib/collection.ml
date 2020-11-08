@@ -48,7 +48,8 @@ module Make (M : Meta) = struct
     let body =
       [ Tyxml.Html.div [ Tyxml.Html.Unsafe.data (body_md t |> Omd.to_html) ] ]
     in
-    Components.html ~lang:"en" ~title:"Main" ~description:"home page" ~body
+    Components.html ~lang:"en" ~css:"/styles" ~title:"Main"
+      ~description:"home page" ~body
 
   let index_html ts =
     let open Tyxml in
@@ -59,7 +60,8 @@ module Make (M : Meta) = struct
         ts
     in
     let body = [ [%html "<ul>" ts "</ul>"] ] in
-    Components.html ~lang:"en" ~title:"Main" ~description:"home page" ~body
+    Components.html ~lang:"en" ~css:"/styles" ~title:"Main"
+      ~description:"home page" ~body
 
   let pp_contents ppf t = Format.fprintf ppf "%s" t.body
 end

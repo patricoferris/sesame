@@ -3,6 +3,7 @@ open Tyxml
 
 val html :
   ?lang:string ->
+  ?css:string ->
   title:string ->
   description:string ->
   body:[< Html_types.flow5 > `PCDATA ] Html.elt list ->

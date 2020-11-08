@@ -1,6 +1,6 @@
 open Tyxml
 
-let html ?(lang = "en") ~title ~description ~body =
+let html ?(lang = "en") ?(css = "/styles") ~title ~description ~body =
   [%html {| 
     <!DOCTYPE html>
     <html lang='|} lang {|'>
@@ -10,7 +10,7 @@ let html ?(lang = "en") ~title ~description ~body =
       <meta name="description" content="|}
       description
       {|"> 
-      <link rel="stylesheet" href="/styles.css">
+      <link rel="stylesheet" href="|} css {|">
       <title>|} (Html.txt title) {|</title>
     </head>
     <body>
