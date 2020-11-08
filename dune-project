@@ -17,4 +17,4 @@
  (name sesame)
  (synopsis "Sesame: blog builder")
  (description "Build less resource intensive blogs with Sesame")
- (depends yaml tyxml jekyll-format ppx_deriving_yaml camlimages))
+ (depends yaml tyxml omd jekyll-format ppx_deriving_yaml camlimages))

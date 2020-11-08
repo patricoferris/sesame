@@ -61,8 +61,17 @@ module Blog_collection = struct
                  [ Html.txt t.meta.description ]
                  "...</p></li>"])
     in
+    let description =
+      [%html
+        "<p>This is a simple static site built with Sesame. Checkout the API \
+         for how you can build your own!</p>"]
+    in
     let body =
-      [ Comps.navbar; [%html "<div class='content'><ul>" ts "</ul></div>"] ]
+      [
+        Comps.navbar;
+        description;
+        [%html "<div class='content'><ul>" ts "</ul></div>"];
+      ]
     in
     Components.html ~lang:"en" ~title:"Blog" ~description:"Blog index page"
       ~body
@@ -72,7 +81,6 @@ module Blog_builder = Build.Make (Blog_collection)
 
 let () =
   Blog_builder.build_html ~src_dir:"blogs" ~dest_dir:"." |> fun ts ->
-  Files.output_html ~path:"blogs/index.html"
-    ~doc:(Blog_collection.index_html ts);
+  Files.output_html ~path:"./index.html" ~doc:(Blog_collection.index_html ts);
   Image.transform ~quality:60 ~src:"images" ~ext:".jpg" ~dst:"images"
     [ Image.resize 1000.; Image.mono ]

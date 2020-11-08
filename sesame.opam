@@ -11,6 +11,7 @@ depends: [
   "dune" {>= "2.7"}
   "yaml"
   "tyxml"
+  "omd"
   "jekyll-format"
   "ppx_deriving_yaml"
   "camlimages"
@@ -31,3 +32,7 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/patricoferris/sesame.git"
+pin-depends: [
+  ["omd.dev" "git+https://github.com/ocaml/omd"]
+  ["ppx_deriving_yaml.dev" "git+https://github.com/patricoferris/ppx_deriving_yaml#bde2bf2dde8f8115c4705613b3889d9941b74f18"]
+]

@@ -55,7 +55,7 @@ With a new collection in hand you can then generate the functions for building t
 ```ocaml
 module B = Build.Make(C)
 
-B.build ~src_dir:"blog" ~dest_dir:"dist/blog"
+B.build ~src_dir:"blog" ~dest_dir:"./dist/blog"
 ```
 
 And that's all there is to it. 
@@ -63,3 +63,11 @@ And that's all there is to it.
 ## Images 
 
 One of the biggest sources of website size (and therefore energy consumption and time spent waiting) are in the images. They tend to be large files. Sesame exposes an `Image` module which can perform some optimisations on a directory containing images. Common operations are resizing, dithering and converting to use less colours.
+
+## Coming Soon 
+
+Probably: 
+
+  - Lwt support for faster concurrent builds (especially for images)!
+  - Automatic image `srcsets` generated for responsive image handling 
+  - A full OCurrent pipeline example... working on the file-watcher 

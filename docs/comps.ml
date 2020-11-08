@@ -5,7 +5,7 @@ let navbar =
       <div class="content">
         <nav>
           <ul>
-            <li><a href="/blogs">Blog</a></li>
+            <li><a href="/api">API</a></li>
           </ul>
         </nav>
         <div>
