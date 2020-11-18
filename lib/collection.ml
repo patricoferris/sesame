@@ -32,11 +32,13 @@ module Make (M : Meta) = struct
   let get_meta t = M.to_yaml t.meta
 
   let v ~file =
-    let content = Files.read_file file in
-    match Jf.of_string content with
-    | Ok data -> (
-        match M.of_yaml Jf.(fields_to_yaml (fields data)) with
-        | Ok meta -> Ok { path = file; meta; body = Jf.body data }
+    match Files.read_file file with
+    | Ok content -> (
+        match Jf.of_string content with
+        | Ok data -> (
+            match M.of_yaml Jf.(fields_to_yaml (fields data)) with
+            | Ok meta -> Ok { path = file; meta; body = Jf.body data }
+            | Error (`Msg m) -> Error (`Msg m))
         | Error (`Msg m) -> Error (`Msg m))
     | Error (`Msg m) -> Error (`Msg m)
 

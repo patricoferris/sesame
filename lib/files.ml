@@ -1,4 +1,4 @@
-open Core
+open Rresult
 
 let all_files root =
   let rec walk acc = function
@@ -6,39 +6,49 @@ let all_files root =
     | dir :: dirs ->
         let dir_content = Array.to_list (Sys.readdir dir) in
         let added_paths =
-          List.rev_map ~f:(fun f -> Filename.concat dir f) dir_content
+          List.rev_map (fun f -> Filename.concat dir f) dir_content
         in
-        let fs =
-          List.fold_left ~f:(fun acc f -> f :: acc) ~init:[] added_paths
-        in
-        let new_dirs = List.filter ~f:(fun f -> Stdlib.Sys.is_directory f) fs in
+        let fs = List.fold_left (fun acc f -> f :: acc) [] added_paths in
+        let new_dirs = List.filter (fun f -> Stdlib.Sys.is_directory f) fs in
         walk (fs @ acc) (new_dirs @ dirs)
   in
   walk [] [ root ]
 
+let list_files ?rel dir =
+  Bos.OS.Dir.contents ?rel (Fpath.v dir) |> function
+  | Ok lst -> lst
+  | Error (`Msg m) -> Fmt.failwith "Listing files in %s failed because %s" dir m
+
 let drop_first_dir ~path =
-  String.concat ~sep:"/" (List.tl_exn (String.split ~on:'/' path))
+  String.concat "/" (List.tl (String.split_on_char '/' path))
 
 let to_html ~path = Filename.chop_extension path ^ ".html"
 
-let read_file filename =
-  let file = In_channel.create filename in
-  Exn.protect
-    ~f:(fun () -> In_channel.input_all file)
-    ~finally:(fun () -> In_channel.close file)
+let read_file filename = Bos.OS.File.read (Fpath.v filename)
 
 let title_to_dirname s =
-  Core.(String.lowercase s |> String.substr_replace_all ~pattern:" " ~with_:"-")
+  String.lowercase_ascii s |> String.split_on_char ' ' |> String.concat "-"
 
-let output_file ~content ~path =
-  let outc = Out_channel.create path in
-  Exn.protect
-    ~f:(fun () -> Out_channel.fprintf outc "%s\n" content)
-    ~finally:(fun () -> Out_channel.close outc)
+let output_file ~path ~content =
+  let fpath = Fpath.v path in
+  let dir = Fpath.split_base fpath |> fst in
+  Bos.OS.Dir.create dir >>= fun _ -> Bos.OS.File.write (Fpath.v path) content
 
 let output_html ~path ~doc =
-  let outc = Out_channel.create path in
-  let fmt = Format.formatter_of_out_channel outc in
-  Exn.protect
-    ~f:(fun () -> Format.fprintf fmt "%a@." (Tyxml.Html.pp ~indent:true ()) doc)
-    ~finally:(fun () -> Out_channel.close outc)
+  let fpath = Fpath.v path in
+  let content =
+    Tyxml.Html.pp ~indent:true () Format.str_formatter doc;
+    Format.flush_str_formatter ()
+  in
+  let dir = Fpath.split_base fpath |> fst in
+  Bos.OS.Dir.create dir >>= fun _ -> output_file ~content ~path
+
+let output_raw ?(body = "") ~path ~yaml () =
+  let fpath = Fpath.v path in
+  let yaml =
+    Yaml.pp Format.str_formatter yaml;
+    Format.flush_str_formatter ()
+  in
+  let dir = Fpath.split_base fpath |> fst in
+  Bos.OS.Dir.create dir >>= fun _ ->
+  Bos.OS.File.write_lines (Fpath.v path) [ "---"; yaml; "---"; ""; body ]

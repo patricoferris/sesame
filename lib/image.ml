@@ -16,18 +16,15 @@ let cap v = if v < 0 then 0 else if v > 255 then 255 else v
 let threshold thresholds (rgb : Color.rgb) : Color.rgb =
   let thresholdsf = float_of_int thresholds in
   let r =
-    int_of_float
-      (Core.round ~dir:`Nearest (thresholdsf *. float_of_int rgb.r /. 255.))
+    int_of_float (floor (thresholdsf *. float_of_int rgb.r /. 255.))
     * (255 / thresholds)
   in
   let g =
-    int_of_float
-      (Core.round ~dir:`Nearest (thresholdsf *. float_of_int rgb.g /. 255.))
+    int_of_float (floor (thresholdsf *. float_of_int rgb.g /. 255.))
     * (255 / thresholds)
   in
   let b =
-    int_of_float
-      (Core.round ~dir:`Nearest (thresholdsf *. float_of_int rgb.b /. 255.))
+    int_of_float (floor (thresholdsf *. float_of_int rgb.b /. 255.))
     * (255 / thresholds)
   in
   { r; g; b }

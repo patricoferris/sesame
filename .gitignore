@@ -4,3 +4,6 @@ examples
 .vscode 
 .DS_Store
 ocurrent
+dist 
+docy
+styles.css

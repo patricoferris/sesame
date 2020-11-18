@@ -2,7 +2,7 @@ module type S = sig
   type t
   (** The type of buildables *)
 
-  val build_single : path:string -> out:string -> unit
+  val build_single : path:string -> out:string -> t
   (** Build a single page from a collection -- can be used to generate
       standalone pages *)
 
