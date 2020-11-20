@@ -61,11 +61,11 @@ module C = struct
       [%html "<div class='meta'><h2>" [ Html.txt t.meta.title ] "</h2></div>"]
     in
     let md = body_md t in
-    let _access_header_check =
-      Checks.check ~exit:false "Headers for \n" Access.well_nested_headers md
-    in
+    (* let _access_header_check =
+         Checks.check ~exit:false "Headers for \n" Access.well_nested_headers md
+       in *)
     let body =
-      Tyxml.Html.Unsafe.data (body_md t |> Hilite.Md.transform |> Omd.to_html)
+      Tyxml.Html.Unsafe.data (md |> Hilite.Md.transform |> Omd.to_html)
     in
     let body =
       [ sidebar; [%html "<div class='content'>" [ meta; body ] "</div>"] ]

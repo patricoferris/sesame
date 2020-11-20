@@ -1,6 +1,6 @@
 open Cmdliner
 
-let cmds = [ Builder.cmd; New.cmd ]
+let cmds = [ Builder.cmd; New.cmd; Server.cmd ]
 
 let default_cmd =
   let doc = "build nicer long-form documentation with sesame" in

@@ -36,10 +36,12 @@ module C = struct
           " on " [ Html.txt t.meta.date ] "</p></div>"]
     in
     let md = body_md t in
-    let _access_header_check =
-      Checks.check ~exit:false "Headers" Access.well_nested_headers md
+    (* let _access_header_check =
+         Checks.check ~exit:false "Headers" Access.well_nested_headers md
+       in *)
+    let body =
+      Tyxml.Html.Unsafe.data (md |> Hilite.Md.transform |> Omd.to_html)
     in
-    let body = Tyxml.Html.Unsafe.data (body_md t |> Omd.to_html) in
     let body =
       [ sidebar; [%html "<div class='content'>" [ meta; body ] "</div>"] ]
     in

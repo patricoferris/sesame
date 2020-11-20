@@ -24,4 +24,4 @@
  (synopsis "Long-form documentation builder using sesame")
  (description
    "A command-line tool for generating long-form documentation that works well with ocaml-mdx")
- (depends sesame cmdliner))
+ (depends sesame fmt rresult cmdliner hilite httpaf httpaf-lwt-unix lwt))

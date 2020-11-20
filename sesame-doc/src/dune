@@ -2,6 +2,6 @@
  (name doc)
  (public_name sesame-doc)
  (package sesame-doc)
- (libraries sesame fmt rresult cmdliner hilite)
+ (libraries sesame fmt rresult cmdliner hilite httpaf httpaf-lwt-unix lwt)
  (preprocess
   (pps ppx_deriving_yaml tyxml-ppx)))
