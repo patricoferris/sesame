@@ -30,7 +30,7 @@ module C = struct
     | Ok t -> t
     | Error (`Msg m) -> Fmt.failwith "%s" m
 
-  let sidebar _c_dir _d_dir (sections : t list) =
+  let sidebar ~title (sections : t list) =
     let mk_link title path =
       [%html "<li><a href=" path ">" [ Html.txt title ] "</a></li>"]
     in
@@ -53,7 +53,9 @@ module C = struct
           ">" [ Html.txt meta.title ] "</a><ul>" pages "</ul></li>"]
     in
     List.map f sections |> fun x ->
-    [%html "<div class='nav'><ul>" x "</ul></div>"]
+    [%html
+      "<div class='nav'><h1 class='title'><a href='/'>" [ Html.txt title ]
+        "</a></h1><ul>" x "</ul></div>"]
 
   let build_html t sidebar =
     let open Tyxml in

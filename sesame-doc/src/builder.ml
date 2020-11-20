@@ -17,6 +17,8 @@ let build c_dir d_dir =
   let sections =
     contents >>| (fun c -> List.filter is_directory c) |> build_error
   in
+  let homepage = Home.C.v ~file:(c_dir ^ "/index.md") |> build_error in
+  let title = Home.C.get_title homepage in
   let section_values =
     List.map
       (fun section ->
@@ -24,7 +26,9 @@ let build c_dir d_dir =
         Section.C.v ~file:path |> build_error)
       sections
   in
-  let sidebar = Section.C.sidebar c_dir d_dir section_values in
+  let sidebar = Section.C.sidebar ~title section_values in
+  Home.C.build_html homepage sidebar |> fun doc ->
+  Files.output_html ~path:(d_dir ^ "/index.html") ~doc |> build_error;
   let section_to_dirname s =
     let title = Section.C.get_title s in
     Files.title_to_dirname title

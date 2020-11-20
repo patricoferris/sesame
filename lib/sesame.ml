@@ -25,6 +25,9 @@ module Files = Files
 module Utils = Utils
 (** A small collection of useful utility functions *)
 
+module Transformer = Transformer
+(** A small collection of markdown to html transformers *)
+
 (** {2 Checking}*)
 
 module Access = Access

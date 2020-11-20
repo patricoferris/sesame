@@ -1,15 +1,5 @@
-module Meta : sig
-  type t [@@deriving yaml]
-
-  val title : t -> string
-
-  val description : t -> string
-
-  val toc : t -> bool
-
-  val default :
-    title:string -> description:string -> author:string -> date:string -> t
-end
+module Meta : Sesame.Collection.Meta
+(** Homepage metadata *)
 
 module C : sig
   include Sesame.Collection.S

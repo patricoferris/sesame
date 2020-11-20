@@ -3,7 +3,7 @@ open Cmdliner
 let content_dir =
   let docv = "CONTENT-DIR" in
   let doc = "The location under which your documentation lies" in
-  Arg.(value & opt string "docs" & info ~doc ~docv [ "content-dir" ])
+  Arg.(value & opt string "src" & info ~doc ~docv [ "content-dir" ])
 
 let dist_dir =
   let docv = "DIST-DIR" in
@@ -11,7 +11,7 @@ let dist_dir =
     "The location under which your documentation site will be placed after \
      building"
   in
-  Arg.(value & opt string "dist" & info ~doc ~docv [ "dist-dir" ])
+  Arg.(value & opt string "docs" & info ~doc ~docv [ "dist-dir" ])
 
 let section n = n ^ "-section"
 

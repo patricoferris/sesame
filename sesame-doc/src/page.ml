@@ -2,7 +2,7 @@ open Sesame
 
 (* A tutorial page's metadata *)
 module Meta = struct
-  type resource = { author : string; desciption : string; url : string }
+  type resource = { title : string; description : string; url : string }
   [@@deriving yaml]
 
   type t = {
@@ -10,6 +10,7 @@ module Meta = struct
     description : string;
     authors : string list;
     date : string;
+    toc : bool;
     resources : resource list;
   }
   [@@deriving yaml]
@@ -18,8 +19,17 @@ module Meta = struct
 
   let description t = t.description
 
+  let toc t = t.toc
+
   let default ~title ~description ~author ~date =
-    { title; description; authors = [ author ]; date; resources = [] }
+    {
+      title;
+      description;
+      authors = [ author ];
+      date;
+      resources = [];
+      toc = false;
+    }
 end
 
 module C = struct
@@ -29,6 +39,21 @@ module C = struct
 
   let build_html (t : t) sidebar =
     let open Tyxml in
+    let make_resources lst =
+      let to_elt (e : Meta.resource) =
+        [%html
+          "<li><a href=" e.url ">" [ Html.txt e.title ] "</a> - "
+            [ Html.txt e.description ] "</li>"]
+      in
+      [%html
+        {|
+        <ol>
+          |}
+          (List.map to_elt lst)
+          {|
+        </ol>
+      |}]
+    in
     let meta =
       [%html
         "<div class='meta'><h2>" [ Html.txt t.meta.title ] "</h2><p> By "
@@ -36,14 +61,24 @@ module C = struct
           " on " [ Html.txt t.meta.date ] "</p></div>"]
     in
     let md = body_md t in
-    (* let _access_header_check =
-         Checks.check ~exit:false "Headers" Access.well_nested_headers md
-       in *)
-    let body =
-      Tyxml.Html.Unsafe.data (md |> Hilite.Md.transform |> Omd.to_html)
+    let toc =
+      if t.meta.toc then
+        let t = Transformer.Toc.toc md in
+        [ Transformer.Toc.to_html t ]
+      else []
     in
     let body =
-      [ sidebar; [%html "<div class='content'>" [ meta; body ] "</div>"] ]
+      Tyxml.Html.Unsafe.data
+        (md |> Hilite.Md.transform |> Transformer.Toc.transform |> Omd.to_html)
+    in
+    let body =
+      [
+        sidebar;
+        [%html
+          "<div class='content'>"
+            ([ meta ] @ toc @ [ body; make_resources t.meta.resources ])
+            "</div>"];
+      ]
     in
     Components.html ~lang:"en" ~css:"/styles.css" ~title:t.meta.title
       ~description:t.meta.description ~body
