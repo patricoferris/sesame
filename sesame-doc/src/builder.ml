@@ -24,7 +24,7 @@ let build c_dir d_dir =
       (fun section ->
         let path = Fpath.(section / "index.md" |> to_string) in
         Section.C.v ~file:path |> build_error)
-      sections
+      (List.sort Fpath.compare sections)
   in
   let sidebar = Section.C.sidebar ~title section_values in
   Home.C.build_html homepage sidebar |> fun doc ->
