@@ -3,7 +3,12 @@ module type S = sig
 
   val build_single : path:string -> out:string -> t
 
-  val build_html : src_dir:string -> dest_dir:string -> t list
+  val build_html :
+    ?list_files:(string -> string list) ->
+    src_dir:string ->
+    dest_dir:string ->
+    unit ->
+    t list
 end
 
 module Make (C : Collection.S) = struct
@@ -17,11 +22,14 @@ module Make (C : Collection.S) = struct
         | Error (`Msg m) -> failwith m)
     | Error (`Msg m) -> failwith ("Failed making: " ^ path ^ " because " ^ m)
 
-  let build_html ~src_dir ~dest_dir =
+  let build_html ?list_files ~src_dir ~dest_dir () =
     let fs =
-      Files.list_files src_dir
-      |> List.map Fpath.to_string
-      |> List.filter (fun f -> Filename.extension f = ".md")
+      match list_files with
+      | Some f -> f src_dir
+      | None ->
+          Files.list_files src_dir
+          |> List.map Fpath.to_string
+          |> List.filter (fun f -> Filename.extension f = ".md")
     in
     let to_file file =
       match C.v ~file with

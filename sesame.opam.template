@@ -1,4 +1,4 @@
 pin-depends: [
   ["omd.dev" "git+https://github.com/ocaml/omd"]
-  ["ppx_deriving_yaml.dev" "git+https://github.com/patricoferris/ppx_deriving_yaml#bde2bf2dde8f8115c4705613b3889d9941b74f18"]
+  ["jekyll-format.dev" "git+https://github.com/avsm/jekyll-format"]
 ]
