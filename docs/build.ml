@@ -86,7 +86,7 @@ module Blog_builder = Build.Make (Blog_collection)
 let handle_error = function Ok t -> t | Error (`Msg m) -> failwith m
 
 let () =
-  Blog_builder.build_html ~src_dir:"blogs" ~dest_dir:"." |> fun ts ->
+  Blog_builder.build_html ~src_dir:"blogs" ~dest_dir:"." () |> fun ts ->
   Files.output_html ~path:"./index.html" ~doc:(Blog_collection.index_html ts)
   |> handle_error;
   Image.transform ~quality:60 ~src:"images" ~ext:".jpg" ~dst:"images"
