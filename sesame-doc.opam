@@ -10,6 +10,8 @@ homepage: "https://github.com/patricoferris/sesame"
 bug-reports: "https://github.com/patricoferris/sesame/issues"
 depends: [
   "dune" {>= "2.7"}
+  "tyxml-ppx" {>= "4.4.0"}
+  "ppx_deriving_yaml" {>= "0.1.0"}
   "sesame"
   "fmt"
   "rresult"
