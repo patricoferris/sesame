@@ -36,3 +36,14 @@
   httpaf
   httpaf-lwt-unix
   lwt))
+(package
+ (name current_sesame)
+ (synopsis "Sesame plugin for OCurrent")
+ (description
+  "A small plugin for building static-sites using an OCurrent pipeline")
+ (depends
+  (current_web (>= 0.3))
+  (current_github (>= 0.3))
+  (current (>= 0.3))
+  (ppx_deriving_yaml (>= 0.1.0))
+  lwt))

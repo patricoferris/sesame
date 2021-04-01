@@ -1,0 +1,6 @@
+(library
+ (name current_sesame)
+ (public_name current_sesame)
+ (libraries sesame current.fs current_github current_web)
+ (preprocess
+  (pps ppx_deriving_yaml)))

@@ -2,12 +2,12 @@ module type S = sig
   type t
   (** The type of buildables *)
 
-  val build_single : path:string -> out:string -> t
+  val build_single : path:Fpath.t -> out:string -> t
   (** Build a single page from a collection -- can be used to generate
       standalone pages *)
 
   val build_html :
-    ?list_files:(string -> string list) ->
+    ?list_files:(string -> Fpath.t list) ->
     src_dir:string ->
     dest_dir:string ->
     unit ->

@@ -6,10 +6,18 @@ end
 module type S = sig
   type meta
 
-  type t = { path : string; meta : meta; body : string }
+  val meta_to_yaml : meta -> Yaml.value
+
+  val meta_of_yaml : Yaml.value -> meta Yaml.res
+
+  type t = { path : string; meta : meta; body : string } [@@deriving yaml]
   (** The type of documents within a collection *)
 
-  val v : file:string -> (t, [> `Msg of string ]) result
+  val of_string : file:Fpath.t -> string -> (t, [> `Msg of string ]) result
+  (** [of_string ~file content] will convert the markdown file in [content] to a
+      [t] recording the [file] pathname *)
+
+  val v : file:Fpath.t -> (t, [> `Msg of string ]) result
   (** [v file] will convert a markdown file to a [t] using the function provided
       by the [Meta] module. If it fails during this process it will return an
       [Error (`Msg m)]. *)
@@ -31,6 +39,12 @@ module type S = sig
 
   val pp_contents : Format.formatter -> t -> unit
   (** Pretty print the contents of the document *)
+
+  val compare : t -> t -> int
+  (** Compare to collection items *)
+
+  val pp : t Fmt.t
+  (** Pretty-print a collection item *)
 end
 
 (** [Make (M)] is the recommended way to generate a Collection module -- you

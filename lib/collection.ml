@@ -7,9 +7,15 @@ end
 module type S = sig
   type meta
 
-  type t = { path : string; meta : meta; body : string }
+  val meta_to_yaml : meta -> Yaml.value
 
-  val v : file:string -> (t, [> `Msg of string ]) result
+  val meta_of_yaml : Yaml.value -> meta Yaml.res
+
+  type t = { path : string; meta : meta; body : string } [@@deriving yaml]
+
+  val of_string : file:Fpath.t -> string -> (t, [> `Msg of string ]) result
+
+  val v : file:Fpath.t -> (t, [> `Msg of string ]) result
 
   val get_meta : t -> Yaml.value
 
@@ -22,24 +28,35 @@ module type S = sig
   val index_html : t list -> Tyxml.Html.doc
 
   val pp_contents : Format.formatter -> t -> unit
+
+  val compare : t -> t -> int
+
+  val pp : t Fmt.t
 end
 
 module Make (M : Meta) = struct
   type meta = M.t
 
-  type t = { path : string; meta : meta; body : string }
+  let meta_to_yaml = M.to_yaml
+
+  let meta_of_yaml = M.of_yaml
+
+  type t = { path : string; meta : meta; body : string } [@@deriving yaml]
 
   let get_meta t = M.to_yaml t.meta
 
+  let of_string ~file content =
+    match Jf.of_string content with
+    | Ok data -> (
+        match M.of_yaml Jf.(fields_to_yaml (fields data)) with
+        | Ok meta ->
+            Ok { path = Fpath.to_string file; meta; body = Jf.body data }
+        | Error (`Msg m) -> Error (`Msg m) )
+    | Error (`Msg m) -> Error (`Msg m)
+
   let v ~file =
-    match Files.read_file file with
-    | Ok content -> (
-        match Jf.of_string content with
-        | Ok data -> (
-            match M.of_yaml Jf.(fields_to_yaml (fields data)) with
-            | Ok meta -> Ok { path = file; meta; body = Jf.body data }
-            | Error (`Msg m) -> Error (`Msg m))
-        | Error (`Msg m) -> Error (`Msg m))
+    match Bos.OS.File.read file with
+    | Ok content -> of_string ~file content
     | Error (`Msg m) -> Error (`Msg m)
 
   let body_string t = t.body
@@ -66,4 +83,8 @@ module Make (M : Meta) = struct
       ~description:"home page" ~body
 
   let pp_contents ppf t = Format.fprintf ppf "%s" t.body
+
+  let compare = compare
+
+  let pp ppf t = Fmt.pf ppf "%s" t.path
 end

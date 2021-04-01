@@ -10,8 +10,8 @@ let typ_of_string s =
   | _ -> Fmt.failwith "I can't build a %s" s
 
 let ask ?(break = false) question default =
-  (if break then Format.(fprintf std_formatter "%s\n%!" question)
-  else Format.(fprintf std_formatter "%s: %!" question));
+  ( if break then Format.(fprintf std_formatter "%s\n%!" question)
+  else Format.(fprintf std_formatter "%s: %!" question) );
   let line = read_line () in
   match (line, default) with "", d -> Ok d | l, _ -> Ok l
 
@@ -31,13 +31,14 @@ let new_page content_dir =
   ask "What section does it belong to? (e.g. 1, 10...)" "1" >>= fun s ->
   let sec = Config.section s in
   let section_page = Section.Meta.make_page ~title ~description in
-  let section_path = Fpath.(v content_dir / sec / "index.md" |> to_string) in
+  let section_path = Fpath.(v content_dir / sec / "index.md") in
   let path =
     content_dir ^ "/" ^ sec ^ "/" ^ Files.title_to_dirname title ^ "/index.md"
   in
   Section.C.v ~file:section_path >>= fun section ->
   let section = Section.C.add_page section section_page in
-  Files.output_raw ~path:section_path
+  Files.output_raw
+    ~path:Fpath.(to_string section_path)
     ~body:(Section.C.body_string section)
     ~yaml:(Section.C.get_meta section)
     ()

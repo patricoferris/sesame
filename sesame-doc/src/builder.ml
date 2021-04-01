@@ -17,12 +17,14 @@ let build c_dir d_dir =
   let sections =
     contents >>| (fun c -> List.filter is_directory c) |> build_error
   in
-  let homepage = Home.C.v ~file:(c_dir ^ "/index.md") |> build_error in
+  let homepage =
+    Home.C.v ~file:(c_dir ^ "/index.md" |> Fpath.v) |> build_error
+  in
   let title = Home.C.get_title homepage in
   let section_values =
     List.map
       (fun section ->
-        let path = Fpath.(section / "index.md" |> to_string) in
+        let path = Fpath.(section / "index.md") in
         Section.C.v ~file:path |> build_error)
       (List.sort Fpath.compare sections)
   in
@@ -43,7 +45,7 @@ let build c_dir d_dir =
     section_values;
   let build_file dir_path output_path =
     let path = Fpath.((dir_path / "index") + "md") in
-    let page = Page.C.v ~file:(Fpath.to_string path) |> build_error in
+    let page = Page.C.v ~file:path |> build_error in
     let out =
       Fpath.(
         (output_path / Files.title_to_dirname (Page.C.get_title page) / "index")
