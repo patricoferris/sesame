@@ -22,6 +22,6 @@
 ;     get-graphql-schema
 ;     --json
 ;     --header
-;     "Authorization=Bearer %{read:.github-token}"
+;     "Authorization=Bearer %{read:.github_token}"
 ;     https://api.github.com/graphql)))
 ;  (mode promote))
