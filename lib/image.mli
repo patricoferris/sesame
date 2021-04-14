@@ -1,4 +1,4 @@
-type t
+(* type t
 (** The type of images *)
 
 val v : string -> int -> int -> string -> t
@@ -10,9 +10,9 @@ val resize : float -> t -> t
 (** Resizing images based on scaling the width to fit the argument and the
     height using the same scale factor *)
 
-val from_file : string -> t
+val from_file : Fpath.t -> t
 
-val to_file : ?quality:int -> t -> string -> unit
+val to_file : ?quality:int -> t -> Fpath.t -> unit
 (** [to_file t path] will put the image [t] in a file at [path] -- the [quality]
     option is used for jpeg images and default to [60] *)
 
@@ -37,9 +37,9 @@ val dither : ?mode:dither -> ?color:color -> ?levels:int -> t -> t
 val transform :
   ?quality:int ->
   ?prefix:string ->
-  src:string ->
+  files:Fpath.t list ->
   ext:string ->
-  dst:string ->
+  dst:Fpath.t ->
   (t -> t) list ->
   unit
 (** [transform src ext dir transforms] will load all of the images in [src]
@@ -47,4 +47,4 @@ val transform :
     the images before placing the output files in [dir]. The [prefix] option
     lets you add a prefix to the output image filename, the default being
     ["modified-"], the [quality] option let's you specify the jpeg quality
-    defaulting to [60] *)
+    defaulting to [60] *) *)

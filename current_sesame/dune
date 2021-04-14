@@ -1,0 +1,3 @@
+(library
+ (name current_sesame)
+ (libraries current current.fs current.cache sesame))

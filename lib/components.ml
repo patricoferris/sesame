@@ -2,7 +2,7 @@ open Tyxml
 
 let html ?(lang = "en") ?(css = "/styles") ~title ~description ~body =
   [%html {| 
-    <!DOCTYPE html>
+    <!DOCTYPE html> 
     <html lang='|} lang {|'>
     <head>
       <meta charset="UTF-8">

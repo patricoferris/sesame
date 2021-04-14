@@ -1,38 +1,32 @@
 (lang dune 2.7)
+
 (name sesame)
+
 (generate_opam_files true)
-(source (github patricoferris/sesame))
+
+(source
+ (github patricoferris/sesame))
+
 (license ISC)
+
 (authors "Patrick Ferris")
+
 (maintainers "pf341@patricoferris.com")
+
 (package
  (name sesame)
- (synopsis "Sesame: blog builder")
- (description "Build less resource intensive blogs with Sesame")
- (depends
-  (tyxml-ppx (>= 4.4.0))
-  (ptime (>= 0.8.5))
-  (fmt (>= 0.8.9))
-  yaml
-  bos
-  tyxml
-  omd
-  jekyll-format
-  ppx_deriving_yaml
-  camlimages))
-(package
- (name sesame-doc)
- (synopsis "Long-form documentation builder using sesame")
+ (synopsis "A Simple Static Site Generator")
  (description
-  "A command-line tool for generating long-form documentation that works well with ocaml-mdx")
+   "Sesame can build simple static sites from Jeykll-format documents")
  (depends
-  (tyxml-ppx (>= 4.4.0))
-  (ppx_deriving_yaml (>= 0.1.0))
-  sesame
-  fmt
-  rresult
-  cmdliner
-  hilite
-  httpaf
-  httpaf-lwt-unix
-  lwt))
+  (alcotest :with-test)
+  (bos :with-test)))
+
+(package
+ (name current-sesame)
+ (synopsis "The OCurrent-powered Static Site Generator")
+ (description
+   "Current-sesame builds on top of Sesame providing a toolkit of OCurrent-powered modules for building more complex pipelines that ultimately build websites")
+ (depends
+  (alcotest :with-test)
+  (bos :with-test)))

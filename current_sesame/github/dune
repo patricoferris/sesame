@@ -1,0 +1,27 @@
+; Idea borrowed from https://github.com/coq/bot/blob/master/bot-components/dune
+
+(library
+ (name github)
+ (public_name current-sesame.github)
+ (libraries cohttp-lwt current.cache base64 ptime yojson fmt logs)
+ (preprocess
+  (pps ppx_deriving_yojson graphql_ppx -- -schema
+    current_sesame/github/schema.json))
+ (preprocessor_deps
+  (file schema.json)))
+
+; (rule
+;  (alias schema)
+;  (targets schema.json)
+;  (deps .github-token (universe))
+;  (action
+;   (with-stdout-to
+;    %{targets}
+;    (run
+;     npx
+;     get-graphql-schema
+;     --json
+;     --header
+;     "Authorization=Bearer %{read:.github-token}"
+;     https://api.github.com/graphql)))
+;  (mode promote))
