@@ -42,3 +42,6 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/patricoferris/sesame.git"
+pin-depends: [
+  ["jekyll-format.dev" "git+https://github.com/avsm/jekyll-format"]
+]

@@ -38,3 +38,7 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/patricoferris/sesame.git"
+pin-depends: [
+  ["dream.dev" "https://github.com/aantron/dream"]
+  ["irmin-watcher.dev" "git+https://github.com/patricoferris/irmin-watcher#use-fsevents-and-cf"]
+]

@@ -1,26 +1,61 @@
 open Lwt.Infix
 
-let default_loader local_root path _ =
-  let file = Filename.concat local_root path in
-  Lwt.catch
-    (fun () ->
-      Lwt_io.(with_file ~mode:Input file) (fun channel ->
-          Lwt_io.read channel |> Lwt.map Dream.response))
-    (fun _exn -> Dream.respond ~status:`Not_Found "")
+let ( / ) = Filename.concat
 
 let inject_script ~port s = s >|= fun s -> s ^ Watcher.Js.script ~port
 
-let loader ~port dir path x =
-  match Filename.extension path with
-  | ".html" ->
-      let file = Filename.concat dir path in
-      Lwt.catch
-        (fun () ->
-          Lwt_io.(with_file ~mode:Input file) (fun channel ->
-              Lwt_io.read channel |> inject_script ~port
-              |> Lwt.map Dream.response))
-        (fun _exn -> Dream.respond ~status:`Not_Found "")
-  | _ -> default_loader dir path x
+let static_read ~port file =
+  let f s =
+    if Filename.extension file = ".html" then inject_script ~port s else s
+  in
+  Lwt_io.(with_file ~mode:Input file) (fun channel ->
+      Lwt_io.read channel |> f |> Lwt.map Dream.response)
+
+let loader ~port dir path _ =
+  let file = dir / path in
+  Lwt.catch
+    (fun () -> static_read ~port file)
+    (fun _exn -> Dream.respond ~status:`Not_Found "")
+
+let validate_path path =
+  let has_dot = List.exists (( = ) Filename.current_dir_name) path in
+  let has_dotdot = List.exists (( = ) Filename.parent_dir_name) path in
+  let has_empty = List.exists (( = ) "") path in
+  let is_empty = path = [] in
+  if has_dot || has_dotdot || has_empty || is_empty then None
+  else
+    let path = String.concat Filename.dir_sep path in
+    if Filename.is_relative path then Some path else None
+
+let static ~port local_root request =
+  if not @@ Dream.methods_equal (Dream.method_ request) `GET then
+    Dream.respond ~status:`Method_Not_Allowed ""
+  else
+    let rec aux ?(once = false) path =
+      match path with
+      | None -> (
+          match Dream.path request with
+          | [] | [ "/" ] | [ "" ] -> aux ~once:true (Some "index.html")
+          | _ -> Dream.respond ~status:`Not_Found "" )
+      | Some path -> (
+          loader ~port local_root path request >>= fun response ->
+          match Dream.status response with
+          | `OK ->
+              let response =
+                if Dream.has_header "Content-Type" response then response
+                else
+                  Dream.add_header "Content-Type" (Magic_mime.lookup path)
+                    response
+              in
+              Lwt.return response
+          | `Not_Found ->
+              if once then Lwt.return response
+              else
+                aux ~once:true
+                  (validate_path (Dream.path request @ [ "index.html" ]))
+          | _ -> Lwt.return response )
+    in
+    aux (validate_path (Dream.path request))
 
 let dev_server ~port ~reload dir =
   Dream.serve ~port @@ Dream.logger
@@ -35,6 +70,6 @@ let dev_server ~port ~reload dir =
                      Dream.send "RELOAD" websocket >>= fun () ->
                      Dream.close_websocket websocket
                  | _ -> Dream.close_websocket websocket));
-         Dream.get "*" (Dream.static ~loader:(loader ~port) dir);
+         Dream.get "*" (static ~port dir);
        ]
-  @@ Dream.not_found
+  @@ fun _ -> Dream.respond ~status:`Not_Found ""

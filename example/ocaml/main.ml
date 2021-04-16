@@ -28,7 +28,7 @@ let tutorials ~src ~dst =
 (* Generic Pages *)
 let pages token =
   let content =
-    Page.Fetch.build ~label:"Fetching index"
+    Page.Fetch.build ~watcher ~label:"Fetching index"
       (Fpath.v "data/index.md" |> Current.return)
   in
   let conf =
@@ -89,7 +89,7 @@ let pipeline ~token () =
       copy ~src:(Fpath.v "data/static") ~dst:(Fpath.v "ocaml.org/static");
     ]
 
-let run mode dev =
+let run dev =
   let open Rresult in
   let has_role _ _ = true in
   Bos.OS.Dir.create (Fpath.v "ocaml.org") >>= fun _ ->
@@ -106,7 +106,7 @@ let run mode dev =
     (Lwt.choose
        ( [
            Current.Engine.thread engine;
-           Current_web.run ~mode site;
+           Current_web.run ~mode:(`TCP (`Port 8081)) site;
            Lwt_result.ok @@ Lwt.bind f (fun (f, _) -> f ());
          ]
        @
@@ -114,7 +114,7 @@ let run mode dev =
          [
            Lwt_result.ok
            @@ Lwt.bind f (fun (_, reload) ->
-                  Current_sesame.Server.dev_server ~port:8081 ~reload
+                  Current_sesame.Server.dev_server ~port:8080 ~reload
                     "./ocaml.org");
          ]
        else [] ))
@@ -126,7 +126,6 @@ let dev = Term.const true
 let cmd =
   let module T = Page in
   let doc = "A fake ocaml.org." in
-  ( Term.(term_result (const run $ Current_web.cmdliner $ dev)),
-    Term.info "ocaml.org" ~doc )
+  (Term.(term_result (const run $ dev)), Term.info "ocaml.org" ~doc)
 
 let () = Term.(exit @@ eval cmd)
