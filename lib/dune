@@ -1,6 +1,19 @@
 (library
  (name sesame)
- (libraries lwt lwt.unix yaml cohttp cohttp-lwt-unix uri fmt fpath tyxml omd
-   jekyll-format camlimages.png camlimages.jpeg)
+ (public_name sesame)
+ (libraries
+  lwt
+  lwt.unix
+  yaml
+  cohttp
+  cohttp-lwt-unix
+  uri
+  fmt
+  fpath
+  tyxml
+  omd
+  jekyll-format
+  camlimages.png
+  camlimages.jpeg)
  (preprocess
   (pps tyxml-ppx ppx_deriving_yaml)))

@@ -1,3 +1,7 @@
+open Current.Syntax
+
+let watcher = Current_sesame.Watcher.create ()
+
 (* Blog posts *)
 let tutorials ~src ~dst =
   Bos.OS.Dir.create dst |> ignore;
@@ -6,8 +10,8 @@ let tutorials ~src ~dst =
     List.map
       (fun src ->
         ( Fpath.to_string src,
-          Tutorial.Fetch.build ~label:"Fetching Tutorials" (Current.return src)
-        ))
+          Tutorial.Fetch.build ~watcher ~label:"Fetching Tutorials"
+            (Current.return src) ))
       files
   in
   let index_path = Fpath.(dst / "index.html") |> Current.return in
@@ -23,7 +27,6 @@ let tutorials ~src ~dst =
 
 (* Generic Pages *)
 let pages token =
-  let open Current.Syntax in
   let content =
     Page.Fetch.build ~label:"Fetching index"
       (Fpath.v "data/index.md" |> Current.return)
@@ -86,23 +89,44 @@ let pipeline ~token () =
       copy ~src:(Fpath.v "data/static") ~dst:(Fpath.v "ocaml.org/static");
     ]
 
-let run mode =
+let run mode dev =
   let open Rresult in
   let has_role _ _ = true in
   Bos.OS.Dir.create (Fpath.v "ocaml.org") >>= fun _ ->
   Bos.OS.File.read (Fpath.v ".token") >>= fun token ->
   let engine = Current.Engine.create (pipeline ~token) in
+  let f =
+    Lwt.map
+      (fun (f, cond, _) -> (f, cond))
+      (Current_sesame.Watcher.FS.watch ~watcher ~engine "data")
+  in
   let routes = Current_web.routes engine in
   let site = Current_web.Site.v ~name:"OCaml.org Builder" ~has_role routes in
   Lwt_main.run
-    (Lwt.choose [ Current.Engine.thread engine; Current_web.run ~mode site ])
+    (Lwt.choose
+       ( [
+           Current.Engine.thread engine;
+           Current_web.run ~mode site;
+           Lwt_result.ok @@ Lwt.bind f (fun (f, _) -> f ());
+         ]
+       @
+       if dev then
+         [
+           Lwt_result.ok
+           @@ Lwt.bind f (fun (_, reload) ->
+                  Current_sesame.Server.dev_server ~port:8081 ~reload
+                    "./ocaml.org");
+         ]
+       else [] ))
 
 open Cmdliner
+
+let dev = Term.const true
 
 let cmd =
   let module T = Page in
   let doc = "A fake ocaml.org." in
-  ( Term.(term_result (const run $ Current_web.cmdliner)),
+  ( Term.(term_result (const run $ Current_web.cmdliner $ dev)),
     Term.info "ocaml.org" ~doc )
 
 let () = Term.(exit @@ eval cmd)

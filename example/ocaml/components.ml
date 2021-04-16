@@ -126,4 +126,10 @@ let with_toc toc content =
       div ~a:[ a_class [ "column"; "is-7"; "is-offset-1" ] ] content;
     ]
 
-let html_doc ~head body = html head body
+let html_doc ?dev ~head content =
+  match dev with
+  | None -> html head (body content)
+  | Some port ->
+      html head
+        (body
+           (content @ [ script (txt @@ Current_sesame.Watcher.Js.script ~port) ]))

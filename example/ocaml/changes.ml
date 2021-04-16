@@ -109,11 +109,10 @@ module H = struct
     in
     let toc = Sesame.Transformer.Toc.(toc omd |> to_tree |> preorder) in
     let content =
-      body
-        [
-          Components.navbar;
-          Components.with_toc [ toc ] [ Unsafe.data @@ Omd.to_html omd ];
-        ]
+      [
+        Components.navbar;
+        Components.with_toc [ toc ] [ Unsafe.data @@ Omd.to_html omd ];
+      ]
     in
     Components.(html_doc ~head:(simple_head ~t:"Changelog") content)
     |> Fmt.str "%a" (Tyxml.Html.pp ())

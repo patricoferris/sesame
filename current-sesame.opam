@@ -10,6 +10,15 @@ homepage: "https://github.com/patricoferris/sesame"
 bug-reports: "https://github.com/patricoferris/sesame/issues"
 depends: [
   "dune" {>= "2.7"}
+  "yojson" {>= "1.7.0"}
+  "ptime" {>= "0.8.5"}
+  "ppx_deriving_yojson" {>= "3.6.1"}
+  "logs" {>= "0.7.0"}
+  "graphql_ppx" {>= "1.0.1"}
+  "fmt" {>= "0.8.9"}
+  "current" {>= "0.4"}
+  "cohttp-lwt" {>= "4.0.0"}
+  "base64" {>= "3.5.0"}
   "alcotest" {with-test}
   "bos" {with-test}
   "odoc" {with-doc}

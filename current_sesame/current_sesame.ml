@@ -1,4 +1,6 @@
 module Local = Local
+module Watcher = Watcher
+module Server = Server
 
 module type Info = sig
   val id : string
@@ -47,8 +49,23 @@ module Make (V : Sesame.Types.S) = struct
   open Current.Syntax
   module C = Cache (V)
 
-  let build ?(label = "Fetching Data") file =
-    Current.component "%s" label
-    |> let> file = file in
-       C.get No_context file
+  let build ?watcher ?(label = "Fetching Data") path =
+    let build =
+      Current.component "%s" label
+      |> let> path = path in
+         C.get No_context path
+    in
+    match watcher with
+    | None -> build
+    | Some watcher ->
+        Current.bind
+          (function
+            | None -> build
+            | Some job_id ->
+                Current.bind
+                  (fun path ->
+                    Watcher.record ~path ~job_id watcher;
+                    build)
+                  path)
+          (Watcher.get_job_id build)
 end

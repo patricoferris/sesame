@@ -31,28 +31,27 @@ module H = struct
            users)
     in
     let content =
-      body
-        [
-          Components.navbar;
-          section
-            ~a:[ a_class [ "section" ] ]
-            [
-              div
-                ~a:[ a_class [ "content"; "columns" ] ]
-                [
-                  div
-                    ~a:[ a_class [ "column"; "is-8"; "is-offset-2" ] ]
-                    [
-                      div
-                        [
-                          title;
-                          users;
-                          Unsafe.data Omd.(to_html (of_string t.body));
-                        ];
-                    ];
-                ];
-            ];
-        ]
+      [
+        Components.navbar;
+        section
+          ~a:[ a_class [ "section" ] ]
+          [
+            div
+              ~a:[ a_class [ "content"; "columns" ] ]
+              [
+                div
+                  ~a:[ a_class [ "column"; "is-8"; "is-offset-2" ] ]
+                  [
+                    div
+                      [
+                        title;
+                        users;
+                        Unsafe.data Omd.(to_html (of_string t.body));
+                      ];
+                  ];
+              ];
+          ];
+      ]
     in
     Components.(html_doc ~head:(simple_head ~t:t.meta.title) content)
     |> Fmt.str "%a" (Tyxml.Html.pp ())
@@ -86,42 +85,41 @@ module Index = struct
     |> let> ts = Current.list_seq ts in
        let head = Components.simple_head ~t:"Blog Posts" in
        let body =
-         body
-           [
-             Components.navbar;
-             Components.section
-               [
-                 div
-                   ~a:[ a_class [ "content"; "columns" ] ]
-                   [
-                     div
-                       ~a:[ a_class [ "column"; "is-8"; "is-offset-2" ] ]
-                       [
-                         ul
-                           (List.map
-                              (fun (t : C.t) ->
-                                let path =
-                                  Fpath.(
-                                    v "/" / Conf.tutorial_dir
-                                    / Fpath.filename
-                                        ( Sesame.Utils.filename_to_html
-                                        @@ Fpath.v t.path ))
-                                in
-                                li
-                                  ~a:[ a_style "list-style: none" ]
-                                  [
-                                    a
-                                      ~a:[ a_href (Fpath.to_string path) ]
-                                      [
-                                        h3 [ txt t.meta.title ];
-                                        p [ txt t.meta.description ];
-                                      ];
-                                  ])
-                              ts);
-                       ];
-                   ];
-               ];
-           ]
+         [
+           Components.navbar;
+           Components.section
+             [
+               div
+                 ~a:[ a_class [ "content"; "columns" ] ]
+                 [
+                   div
+                     ~a:[ a_class [ "column"; "is-8"; "is-offset-2" ] ]
+                     [
+                       ul
+                         (List.map
+                            (fun (t : C.t) ->
+                              let path =
+                                Fpath.(
+                                  v "/" / Conf.tutorial_dir
+                                  / Fpath.filename
+                                      ( Sesame.Utils.filename_to_html
+                                      @@ Fpath.v t.path ))
+                              in
+                              li
+                                ~a:[ a_style "list-style: none" ]
+                                [
+                                  a
+                                    ~a:[ a_href (Fpath.to_string path) ]
+                                    [
+                                      h3 [ txt t.meta.title ];
+                                      p [ txt t.meta.description ];
+                                    ];
+                                ])
+                            ts);
+                     ];
+                 ];
+             ];
+         ]
        in
        let html =
          Components.html_doc ~head body |> Fmt.str "%a" (Tyxml.Html.pp ())

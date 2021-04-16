@@ -134,21 +134,19 @@ module H = struct
     let hero = Components.hero ~title description in
     let rels = div [ github_panel ] in
     let content =
-      body
-        [
-          Components.navbar;
-          hero;
-          Components.(
-            section
-              [
-                two_column
-                  [
-                    div
-                      [ Unsafe.data (Omd.to_html (Omd.of_string content.body)) ];
-                  ]
-                  [ rels ];
-              ]);
-        ]
+      [
+        Components.navbar;
+        hero;
+        Components.(
+          section
+            [
+              two_column
+                [
+                  div [ Unsafe.data (Omd.to_html (Omd.of_string content.body)) ];
+                ]
+                [ rels ];
+            ]);
+      ]
     in
     Components.(html_doc ~head:(simple_head ~t:title) content)
     |> Fmt.str "%a" (Tyxml.Html.pp ())

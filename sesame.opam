@@ -10,6 +10,19 @@ homepage: "https://github.com/patricoferris/sesame"
 bug-reports: "https://github.com/patricoferris/sesame/issues"
 depends: [
   "dune" {>= "2.7"}
+  "yaml" {>= "2.1.0"}
+  "uri" {>= "4.1.0"}
+  "tyxml-ppx" {>= "4.4.0"}
+  "tyxml" {>= "4.4.0"}
+  "ppx_deriving_yaml" {>= "0.1.0"}
+  "omd" {>= "2.0.0~alpha1"}
+  "lwt" {>= "5.4.0"}
+  "jekyll-format" {>= "0.1.0"}
+  "fpath" {>= "0.7.3"}
+  "fmt" {>= "0.8.9"}
+  "cohttp-lwt-unix" {>= "4.0.0"}
+  "cohttp" {>= "4.0.0"}
+  "camlimages" {>= "5.0.4"}
   "alcotest" {with-test}
   "bos" {with-test}
   "odoc" {with-doc}
