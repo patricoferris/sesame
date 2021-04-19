@@ -66,10 +66,29 @@ let pages token =
         changes;
     ]
 
+(* Images *)
+let images () =
+  let files =
+    match Bos.OS.Dir.contents (Fpath.v "data/static/images") with
+    | Ok files -> files
+    | _ -> failwith "Failed to find data/static/images"
+  in
+  let dst = Fpath.v "ocaml.org/static/images" in
+  Bos.OS.Dir.create dst |> ignore;
+  let conf : Sesame.Image.Transform.conf =
+    { quality = 50; prefix = "modified-"; files; dst }
+  in
+  Current_sesame.Image.build
+    ~ts:Sesame.Image.[ resize 300.; dither ~color:`Mono ]
+    (Current.return conf)
+
 (* Copy static assets *)
 let copy ~src ~dst =
   Bos.OS.Dir.create dst |> ignore;
-  let files = Bos.OS.Dir.contents src |> Rresult.R.get_ok in
+  let files =
+    Bos.OS.Dir.contents src |> Rresult.R.get_ok
+    |> List.filter (fun f -> not (Sys.is_directory @@ Fpath.to_string f))
+  in
   let ws =
     List.map
       (fun src ->
@@ -87,6 +106,7 @@ let pipeline ~token () =
         ~dst:Fpath.(v "ocaml.org" / Conf.tutorial_dir);
       pages token;
       copy ~src:(Fpath.v "data/static") ~dst:(Fpath.v "ocaml.org/static");
+      images ();
     ]
 
 let run dev =

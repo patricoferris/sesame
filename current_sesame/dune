@@ -1,3 +1,5 @@
 (library
  (name current_sesame)
+ (flags
+  (:standard -warn-error -37))
  (libraries current current.fs current.cache sesame dream irmin-watcher))

@@ -8,15 +8,7 @@ end
 module Make (M : Meta) = struct
   type meta = M.t
 
-  module Input = struct
-    type t = Fpath.t
-
-    let encode = Fpath.to_string
-
-    let decode t = Fpath.of_string t |> Rresult.R.get_ok
-
-    let pp = Fpath.pp
-  end
+  module Input = Utils.Fpath_input
 
   let meta_of_yaml = M.of_yaml
 

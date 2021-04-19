@@ -13,7 +13,8 @@
   tyxml
   omd
   jekyll-format
+  digestif
   camlimages.png
   camlimages.jpeg)
  (preprocess
-  (pps tyxml-ppx ppx_deriving_yaml)))
+  (pps tyxml-ppx ppx_deriving_yaml ppx_deriving_yojson)))

@@ -1,6 +1,7 @@
 module Local = Local
 module Watcher = Watcher
 module Server = Server
+module Image = Image
 
 module type Info = sig
   val id : string

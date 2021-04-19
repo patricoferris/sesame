@@ -45,7 +45,7 @@ let section content =
 
 let two_column a b =
   div
-    ~a:[ a_class [ "columns" ] ]
+    ~a:[ a_class [ "columns"; "is-vcentered" ] ]
     [
       div ~a:[ a_class [ "column"; "is-5"; "is-offset-1" ] ] a;
       div ~a:[ a_class [ "column"; "is-5" ] ] b;

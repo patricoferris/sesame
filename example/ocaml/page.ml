@@ -2,7 +2,12 @@
 open Tyxml.Html
 
 module Meta = struct
-  type t = { title : string; description : string; releases : string }
+  type t = {
+    title : string;
+    description : string;
+    releases : string;
+    heroImage : string;
+  }
   [@@deriving yaml]
 end
 
@@ -137,6 +142,24 @@ module H = struct
       [
         Components.navbar;
         hero;
+        Components.(
+          section
+            [
+              two_column
+                [
+                  div
+                    ~a:[ a_style "text-align: center;" ]
+                    [ img ~src:content.meta.heroImage ~alt:"A camel" () ];
+                ]
+                [
+                  p
+                    [
+                      txt
+                        "An image that has been rescaled, monochromed and \
+                         dithered for your viewing pleasure";
+                    ];
+                ];
+            ]);
         Components.(
           section
             [

@@ -1,63 +1,57 @@
-(* type t = {
+type t = {
   ext : Images.format;
+  path : Fpath.t;
   width : int;
   height : int;
   image : OImages.rgb24_class;
 }
 
-let format_to_string = function
-  | Images.Png -> "png"
-  | Images.Jpeg -> "jpeg"
-  | _ -> failwith "Unknown image format"
-
-let format_of_string = function
-  | "png" -> Images.Png
-  | "jpeg" | "jpg" -> Images.Jpeg
-  | _ -> failwith "Unsupported image format"
-
-let to_string img = Bytes.to_string img.image#dump
-
-let of_string width height ext str =
-  let r = new OImages.rgb24_with in
-  { ext; width; height; image = r width height [] @@ Bytes.of_string str }
+let from_file path =
+  match Fpath.get_ext path with
+  | ".png" ->
+      let image =
+        OImages.rgb24 @@ OImages.make
+        @@ Png.load_as_rgb24 (Fpath.to_string path) []
+      in
+      {
+        ext = Images.Png;
+        path;
+        width = image#width;
+        height = image#height;
+        image;
+      }
+  | ".jpeg" | ".jpg" ->
+      let image =
+        OImages.rgb24 @@ OImages.make @@ Jpeg.load (Fpath.to_string path) []
+      in
+      {
+        ext = Images.Jpeg;
+        path;
+        width = image#width;
+        height = image#height;
+        image;
+      }
+  | s -> raise (Failure ("We don't currently support: " ^ s))
 
 let encode t =
   let yaml : Yaml.value =
     `O
       [
-        ("ext", `String (format_to_string t.ext));
-        ("width", `Float (float_of_int t.width));
-        ("height", `Float (float_of_int t.height));
-        ("image", `String (Bytes.to_string t.image#dump));
+        ("path", `String (Fpath.to_string t.path));
+        ( "image",
+          (* Hashing the image contents... ? *)
+          `String
+            ( Bytes.to_string t.image#dump
+            |> Digestif.SHA1.digest_string |> Digestif.SHA1.to_raw_string ) );
       ]
   in
   Fmt.str "%a" Yaml.pp yaml
 
 let decode s =
   match Yaml.of_string_exn s with
-  | `O
-      [
-        ("ext", `String ext);
-        ("width", `Float width);
-        ("height", `Float height);
-        ("image", `String s);
-      ] ->
-      of_string (int_of_float width) (int_of_float height)
-        (format_of_string ext) s
+  | `O [ ("path", `String path); ("image", `String _hash) ] ->
+      from_file (Fpath.v path)
   | _ -> failwith "Error decoding image from string"
-
-let from_file filename =
-  match Fpath.get_ext filename with
-  | ".png" ->
-      let image =
-        OImages.rgb24 @@ OImages.make
-        @@ Png.load_as_rgb24 (Fpath.to_string filename) []
-      in
-      { ext = Images.Png; width = image#width; height = image#height; image }
-  | ".jpeg" | ".jpg" ->
-      let image = OImages.rgb24 @@ OImages.load (Fpath.to_string filename) [] in
-      { ext = Images.Jpeg; width = image#width; height = image#height; image }
-  | s -> raise (Failure ("We don't currently support: " ^ s))
 
 let cap v = if v < 0 then 0 else if v > 255 then 255 else v
 
@@ -133,37 +127,26 @@ let to_file ?(quality = 60) img output =
   img.image#save (Fpath.to_string output) (Some img.ext)
     [ Images.Save_Quality quality ]
 
-let v ext w h image =
-  match ext with
-  | "png" -> of_string w h Images.Png image
-  | "jpeg" -> of_string w h Images.Jpeg image
-  | _ -> raise (Failure ("Extension not supported: " ^ ext))
+module Transform = struct
+  type conf = {
+    quality : int;
+    prefix : string;
+    files : Fpath.t list;
+    dst : Fpath.t;
+  }
 
-let transform ?(quality = 60) ?(prefix = "modified-") ~files ~ext ~dst
-    transforms =
-  let files = List.filter (fun f -> Fpath.get_ext f = ext) files in
-  List.iter
-    (fun f ->
-      let img =
-        try from_file f
-        with Images.Wrong_file_type -> failwith (Fpath.to_string f)
-      in
-      let img = List.fold_left (fun a t -> t a) img transforms in
-      try to_file ~quality img Fpath.(dst / prefix / Fpath.basename f) with
-      | Failure fail -> failwith (Fpath.to_string f ^ " " ^ fail)
-      | f -> raise f)
-    files
-
-type fetch = Fpath.t
-
-let pp_fetch = Fpath.pp
-
-let pp ppf t = Fmt.pf ppf "%s" (encode t)
-
-let compare = compare
-
-let digest_fetch = Fpath.to_string
-
-let fetch file = Lwt.return @@ from_file file
-
-let build  *)
+  let transform ~conf transforms =
+    let { quality; prefix; files; dst } = conf in
+    List.iter
+      (fun f ->
+        let img =
+          try from_file f
+          with Images.Wrong_file_type -> failwith (Fpath.to_string f)
+        in
+        let img = List.fold_left (fun a t -> t a) img transforms in
+        let output = Fpath.(dst / (prefix ^ Fpath.basename f)) in
+        try to_file ~quality img output with
+        | Failure fail -> failwith (Fpath.to_string output ^ " " ^ fail)
+        | f -> raise f)
+      files
+end

@@ -23,3 +23,13 @@ let filename_to_html path =
 
 let title_to_dirname s =
   String.lowercase_ascii s |> String.split_on_char ' ' |> String.concat "-"
+
+module Fpath_input = struct
+  type t = Fpath.t
+
+  let encode = Fpath.to_string
+
+  let decode t = Fpath.of_string t |> Rresult.R.get_ok
+
+  let pp = Fpath.pp
+end
