@@ -9,4 +9,35 @@ module H = Sesame.Collection.Html (Meta)
 (* Produces a Collection from a Filesystem *)
 module Fetch = Current_sesame.Make (C)
 (* Produces HTML from a Collection *)
-module Html = Current_sesame.Make (H)</code></pre><p>Building the resulting collection is then possible with a bit of OCurrent magic :) The <code>example/simple</code> directory contains the rest of the code that generates the output HTML and starts a hot-reloading watcher on the files too.</p><h2 id="images"><a href="#images" class="anchor"></a>Images</h2><p><a href="Current_sesame/Image/index.html"><code>Current_sesame.Image</code></a> provides the OCurrent-powered forms of <a href="../sesame/Sesame/Image/index.html"><code>Sesame.Image</code></a></p><h2 id="server-and-watcher"><a href="#server-and-watcher" class="anchor"></a>Server and Watcher</h2><p><a href="Current_sesame/Watcher/index.html"><code>Current_sesame.Watcher</code></a> and <a href="Current_sesame/Server/index.html"><code>Current_sesame.Server</code></a> together provide hot-reloading functionality thanks to web-sockets and <a href="https://github.com/mirage/irmin-watcher">irmin-watcher</a></p></div></body></html>
+module Html = Current_sesame.Make (H)</code></pre><p>Building the resulting collection is then possible with a bit of OCurrent magic :) We can even add a little watcher to get some hot-reloading goodness.</p><pre><code class="ml">let watcher = Current_sesame.Watcher.create ()
+
+(* ~~~ The pipeline ~~~ *)
+let pipeline dst () =
+  (* Build a collection and pass in the watcher to record the association *)
+  let c =
+    CC.build ~watcher ~label:&quot;fetching collection&quot;
+      (Fpath.v &quot;data/index.md&quot; |&gt; Current.return)
+  in
+  (* Build the HTML from the collection using the default build functionality from Sesame *)
+  let html = HC.build ~label:&quot;building html&quot; c in
+  (* Save the HTML string to a file *)
+  Current_sesame.Local.save (Fpath.(dst / &quot;index.html&quot;) |&gt; Current.return) html</code></pre><p>After that you just add the traditional OCurrent boiler-plate and a little bit of mangling to get the <code>Lwt_condition.t</code> variable to our development server and you are done!</p><pre><code class="ml">let main dst =
+  let dest = Fpath.v dst in
+  (* The OCurrent Engine *)
+  let engine = Current.Engine.create (pipeline dest) in
+  (* Tell the watcher to watch our data directory and get back
+     a condition variable that is broadcast to on changes *)
+  let f =
+    Lwt.map
+      (fun (f, cond, _) -&gt; (f, cond))
+      (Current_sesame.Watcher.FS.watch ~watcher ~engine &quot;data&quot;)
+  in
+  Lwt_main.run
+    (Lwt.choose
+       [
+         Current.Engine.thread engine;
+         Lwt_result.ok
+         @@ Lwt.bind f (fun (_, reload) -&gt;
+                (* Pass the condition variable into the development server *)
+                Current_sesame.Server.dev_server ~port:8080 ~reload dst);
+       ])</code></pre><h2 id="images"><a href="#images" class="anchor"></a>Images</h2><p><a href="Current_sesame/Image/index.html"><code>Current_sesame.Image</code></a> provides the OCurrent-powered forms of <a href="../sesame/Sesame/Image/index.html"><code>Sesame.Image</code></a></p><h2 id="server-and-watcher"><a href="#server-and-watcher" class="anchor"></a>Server and Watcher</h2><p><a href="Current_sesame/Watcher/index.html"><code>Current_sesame.Watcher</code></a> and <a href="Current_sesame/Server/index.html"><code>Current_sesame.Server</code></a> together provide hot-reloading functionality thanks to web-sockets and <a href="https://github.com/mirage/irmin-watcher">irmin-watcher</a></p></div></body></html>
