@@ -40,11 +40,11 @@ module Toc = struct
 
   type 'a tree = Br of 'a * 'a tree list
 
-  let rec pre ppf tree =
-    match tree with
-    | Br (t, lst) ->
-        Format.pp_print_string ppf (to_string t);
-        List.iter (pre ppf) lst
+  (* let rec pre ppf tree =
+     match tree with
+     | Br (t, lst) ->
+         Format.pp_print_string ppf (to_string t);
+         List.iter (pre ppf) lst *)
 
   (* An algorithm to turn a list of headers into a
      tree of headers *)
@@ -134,4 +134,44 @@ module Toc = struct
     preorder tree |> fun list ->
     [%html
       "<details><summary>Table of Contents</summary>" [ list ] "</details>"]
+end
+
+module Image = struct
+  type t = {
+    conf : Image.Transform.conf;
+    path : Fpath.t;
+    responsive : Responsive.Images.t;
+  }
+
+  let v ~quality ~path ~dst responsive =
+    {
+      conf = Image.Transform.{ quality; dst; rename = Fun.id; files = [] };
+      path;
+      responsive;
+    }
+
+  let transform t blocks =
+    let f (b : Omd.block) =
+      let make_img img =
+        let html = Fmt.str "%a" (Tyxml.Html.pp_elt ()) img in
+        Omd.Html html
+      in
+      match b.bl_desc with
+      | Omd.Paragraph ({ il_desc; _ } as il) -> (
+          match il_desc with
+          | Omd.Image { label = { il_desc = Omd.Text alt; _ }; destination; _ }
+            ->
+              let conf = { t.conf with files = [ Fpath.v destination ] } in
+              let conf = Responsive.Images.{ conf; root = t.path } in
+              let img =
+                Responsive.Images.v ~alt ~conf t.responsive |> List.hd |> snd
+              in
+              {
+                b with
+                bl_desc = Omd.Paragraph { il with il_desc = make_img img };
+              }
+          | _ -> b )
+      | _ -> b
+    in
+    List.map f blocks
 end

@@ -104,12 +104,22 @@ module H = struct
     in
     aux n [] lst
 
-  let responsive_images ~f ~alt sizes =
+  let responsive_images ~f ~root ~alt sizes =
     let open Sesame in
     let dst = Fpath.(v Conf.build_dir / "static" / "images") in
     Bos.OS.Dir.create dst |> ignore;
     let conf =
-      { Image.Transform.quality = 60; files = [ f ]; dst; rename = Fun.id }
+      Responsive.Images.
+        {
+          root = Fpath.v root;
+          conf =
+            {
+              Image.Transform.quality = 60;
+              files = [ f ];
+              dst;
+              rename = Fun.id;
+            };
+        }
     in
     let imgs = Responsive.Images.v ~alt ~conf sizes in
     List.hd imgs |> snd
@@ -162,8 +172,8 @@ module H = struct
                     ~a:[ a_style "text-align: center;" ]
                     [
                       responsive_images
-                        ~f:Fpath.(v Conf.src_dir // v heroImage)
-                        ~alt:heroAlt
+                        ~f:Fpath.(v heroImage)
+                        ~root:content.path ~alt:heroAlt
                         Sesame.Responsive.Images.(
                           MaxWidth (660, 400, Default 800));
                     ];

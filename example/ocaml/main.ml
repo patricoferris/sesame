@@ -5,7 +5,10 @@ let watcher = Current_sesame.Watcher.create ()
 (* Blog posts *)
 let tutorials ~src ~dst =
   Bos.OS.Dir.create dst |> ignore;
-  let files = Bos.OS.Dir.contents src |> Rresult.R.get_ok in
+  let files =
+    Bos.OS.Dir.contents src |> Rresult.R.get_ok
+    |> List.filter (fun f -> not (Sys.is_directory @@ Fpath.to_string f))
+  in
   let blogs =
     List.map
       (fun src ->

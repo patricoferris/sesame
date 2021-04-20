@@ -1,6 +1,8 @@
 module Images = struct
   type t = MaxWidth of int * int * t | Default of int
 
+  type conf = { root : Fpath.t; conf : Image.Transform.conf }
+
   let rec get_default_size = function
     | Default i -> i
     | MaxWidth (_, _, xs) -> get_default_size xs
@@ -21,16 +23,14 @@ module Images = struct
       (fun s ->
         let s = int_of_float s in
         `Url_width
-          ( Fpath.(
-              Path.change_filename f (rename_by_size s)
-              |> Path.drop_top_dir |> to_string),
-            s ))
+          (Fpath.(Path.(change_filename f (rename_by_size s) |> to_string)), s))
       sizes
 
   let resize ~conf sizes =
-    let { Image.Transform.quality; rename; files; dst } = conf in
+    let { Image.Transform.quality; rename; files; dst } = conf.conf in
     List.iter
       (fun f ->
+        let f = Path.(join_relative ~drop:false conf.root f) in
         let resize size =
           let img =
             try Image.from_file f
@@ -52,7 +52,9 @@ module Images = struct
     let open Tyxml.Html in
     let gen_srcset f =
       let sizes = get_sizes t in
-      let conf = { conf with Image.Transform.files = [ f ] } in
+      let conf =
+        { conf with conf = { conf.conf with Image.Transform.files = [ f ] } }
+      in
       resize ~conf sizes;
       let default = get_default_size t in
       let srcset = sizes_to_srcset f sizes in
@@ -60,10 +62,9 @@ module Images = struct
         img ~alt
           ~src:
             Fpath.(
-              conf.dst // Path.change_filename f (rename_by_size default)
-              |> to_string)
+              Path.(change_filename f (rename_by_size default)) |> to_string)
           ~a:[ a_srcset srcset; a_img_sizes (get_a_sizes t) ]
           () )
     in
-    List.map gen_srcset conf.files
+    List.map gen_srcset conf.conf.files
 end
