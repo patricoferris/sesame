@@ -1,12 +1,20 @@
+(** {2 Tools for Responsive Web Pages}
+
+    This modules contains different tools for building more responsive web
+    pages. In particular, its biggest selling feature is the responsive images
+    module which can generate [<img srcset=...>] HTML tags from a source image
+    i.e. it can create the rescaled images, save them somewhere and give back to
+    you the HTML tag to use as you see fit *)
+
+(** @inline *)
 module Images : sig
   (** {2 Generate Responsive Images} *)
 
-  type t =
-    | MaxWidth of int * int * t
-    | Default of int
-        (** The media type allows you specify how the responsive image generator
-            show create new resized images allowing with the media conditions to
-            add to the image srcset attribute. *)
+  type t = MaxWidth of int * int * t | Default of int
+
+  (** The media type allows you specify how the responsive image generator show
+      create new resized images allowing with the media conditions to add to the
+      image srcset attribute. *)
 
   val v :
     alt:string ->

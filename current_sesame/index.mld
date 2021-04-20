@@ -1,0 +1,42 @@
+{0:top Sesame x OCurrent}
+
+[Sesame] is a platform-agnostic tool providing a set of utilities for building websites.
+{{:https://github.com/ocurrent/ocurrent} OCurrent} is a tool for building data-graphs expressing
+inputs and outputs to achieve incremental computation.
+
+[Current_sesame] is the bringing together of [OCurrent] and [Sesame] to build incremental site 
+generators.
+
+{1 Collections}
+
+Just like {!Sesame.Collection}, {!Current_sesame} exposes an OCurrent-powered version via to {!Current_sesame.Make}
+functor. Part of Sesame's redesign was to ensure some of the modules over in {!Sesame} provided the 
+functionality needed to work with [OCurrent]'s caching model. 
+
+You can now specify things like: 
+
+{[
+  module Meta = struct 
+    type t = { title : string } [@@deriving yaml]
+  end 
+
+  module C = Sesame.Collection.Make (Meta)
+  module H = Sesame.Collection.Html (Meta)
+
+  (* Produces a Collection from a Filesystem *)
+  module Fetch = Current_sesame.Make (C)
+  (* Produces HTML from a Collection *)
+  module Html = Current_sesame.Make (H)
+]}
+
+Building the resulting collection is then possible with a bit of OCurrent magic :) The [example/simple] directory
+contains the rest of the code that generates the output HTML and starts a hot-reloading watcher on the files too. 
+
+{1 Images}
+
+{!Current_sesame.Image} provides the OCurrent-powered forms of {!Sesame.Image}
+
+{1 Server and Watcher}
+
+{!Current_sesame.Watcher} and {!Current_sesame.Server} together provide hot-reloading functionality thanks
+to web-sockets and {{: https://github.com/mirage/irmin-watcher} irmin-watcher}

@@ -5,3 +5,4 @@ module Image = Image
 module Transformer = Transformer
 module Responsive = Responsive
 module Path = Path
+module Components = Components
