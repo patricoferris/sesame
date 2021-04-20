@@ -17,8 +17,8 @@ module Toc = struct
           | Omd.Heading (s, il) -> (
               match il.il_desc with
               | Omd.Text heading -> loop (H (s, heading) :: acc) bs
-              | _ -> loop acc bs)
-          | _ -> loop acc bs)
+              | _ -> loop acc bs )
+          | _ -> loop acc bs )
     in
     loop [] doc
 
@@ -31,9 +31,9 @@ module Toc = struct
               {
                 b with
                 bl_attributes =
-                  ("id", Files.title_to_dirname heading) :: b.bl_attributes;
+                  ("id", Utils.title_to_dirname heading) :: b.bl_attributes;
               }
-          | _ -> b)
+          | _ -> b )
       | _ -> b
     in
     List.map f doc
@@ -73,14 +73,14 @@ module Toc = struct
           let (Br (p, lst)) = arr.(x - 1) in
           if x = y then (
             arr.(x - 1) <- Br (p, lst @ [ Br (a, []) ]);
-            aux x (b :: xs))
+            aux x (b :: xs) )
           else if x > y then (
             arr.(x) <- Br (a, []);
             tidy arr (y - 1) x;
-            aux x (b :: xs))
+            aux x (b :: xs) )
           else (
             arr.(x) <- Br (a, []);
-            aux x (b :: xs))
+            aux x (b :: xs) )
     in
     aux 0 lst
 
@@ -95,7 +95,7 @@ module Toc = struct
           [
             to_elt
               [ "toc-link"; "toc-item-" ^ string_of_int i ]
-              (Files.title_to_dirname txt)
+              (Utils.title_to_dirname txt)
               txt;
           ]
 
@@ -107,8 +107,8 @@ module Toc = struct
     | Br (v, lst) ->
         [%html
           "<ul class='toc'><li>"
-            (map_to_item v
-            @ List.fold_left (fun acc v -> acc @ [ preorder v ]) [] lst)
+            ( map_to_item v
+            @ List.fold_left (fun acc v -> acc @ [ preorder v ]) [] lst )
             "</li></ul>"]
 
   let pp ppf t =
@@ -125,11 +125,11 @@ module Toc = struct
     | _ -> assert true
 
   let to_html toc =
-    (try accessibility toc
-     with Failure t ->
-       print_endline "== Failed Heading List ==";
-       pp Format.std_formatter toc;
-       raise (Failure t));
+    ( try accessibility toc
+      with Failure t ->
+        print_endline "== Failed Heading List ==";
+        pp Format.std_formatter toc;
+        raise (Failure t) );
     let tree = to_tree toc in
     preorder tree |> fun list ->
     [%html

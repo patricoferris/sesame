@@ -1,15 +1,57 @@
-type t = { ext : Images.format; image : OImages.rgb24_class }
+type t = {
+  ext : Images.format;
+  path : Fpath.t;
+  width : int;
+  height : int;
+  image : OImages.rgb24_class;
+}
 
-let from_file filename =
-  match Filename.extension filename with
+let from_file path =
+  match Fpath.get_ext path with
   | ".png" ->
+      let image =
+        OImages.rgb24 @@ OImages.make
+        @@ Png.load_as_rgb24 (Fpath.to_string path) []
+      in
       {
         ext = Images.Png;
-        image = OImages.rgb24 @@ OImages.make @@ Png.load_as_rgb24 filename [];
+        path;
+        width = image#width;
+        height = image#height;
+        image;
       }
   | ".jpeg" | ".jpg" ->
-      { ext = Images.Jpeg; image = OImages.rgb24 @@ OImages.load filename [] }
+      let image =
+        OImages.rgb24 @@ OImages.make @@ Jpeg.load (Fpath.to_string path) []
+      in
+      {
+        ext = Images.Jpeg;
+        path;
+        width = image#width;
+        height = image#height;
+        image;
+      }
   | s -> raise (Failure ("We don't currently support: " ^ s))
+
+let encode t =
+  let yaml : Yaml.value =
+    `O
+      [
+        ("path", `String (Fpath.to_string t.path));
+        ( "image",
+          (* Hashing the image contents... ? *)
+          `String
+            ( Bytes.to_string t.image#dump
+            |> Digestif.SHA1.digest_string |> Digestif.SHA1.to_raw_string ) );
+      ]
+  in
+  Fmt.str "%a" Yaml.pp yaml
+
+let decode s =
+  match Yaml.of_string_exn s with
+  | `O [ ("path", `String path); ("image", `String _hash) ] ->
+      from_file (Fpath.v path)
+  | _ -> failwith "Error decoding image from string"
 
 let cap v = if v < 0 then 0 else if v > 255 then 255 else v
 
@@ -82,30 +124,29 @@ let resize width t =
   { t with image }
 
 let to_file ?(quality = 60) img output =
-  img.image#save output (Some img.ext) [ Images.Save_Quality quality ]
+  img.image#save (Fpath.to_string output) (Some img.ext)
+    [ Images.Save_Quality quality ]
 
-let of_string width height ext str =
-  let r = new OImages.rgb24_with in
-  { ext; image = r width height [] @@ Bytes.of_string str }
+module Transform = struct
+  type conf = {
+    quality : int;
+    rename : string -> string;
+    files : Fpath.t list;
+    dst : Fpath.t;
+  }
 
-let to_string img = Bytes.to_string img.image#dump
-
-let v ext w h image =
-  match ext with
-  | "png" -> of_string w h Images.Png image
-  | "jpeg" -> of_string w h Images.Jpeg image
-  | _ -> raise (Failure ("Extension not supported: " ^ ext))
-
-let transform ?(quality = 60) ?(prefix = "modified-") ~src ~ext ~dst transforms
-    =
-  let files =
-    Files.all_files src |> List.filter (fun f -> Filename.extension f = ext)
-  in
-  List.iter
-    (fun f ->
-      let img = try from_file f with Images.Wrong_file_type -> failwith f in
-      let img = List.fold_left (fun a t -> t a) img transforms in
-      try to_file ~quality img (dst ^ "/" ^ prefix ^ Filename.basename f) with
-      | Failure fail -> failwith (f ^ " " ^ fail)
-      | f -> raise f)
-    files
+  let transform ~conf transforms =
+    let { quality; rename; files; dst } = conf in
+    List.iter
+      (fun f ->
+        let img =
+          try from_file f
+          with Images.Wrong_file_type -> failwith (Fpath.to_string f)
+        in
+        let img = List.fold_left (fun a t -> t a) img transforms in
+        let output = Fpath.(dst // Path.change_filename f rename) in
+        try to_file ~quality img output with
+        | Failure fail -> failwith (Fpath.to_string output ^ " " ^ fail)
+        | f -> raise f)
+      files
+end

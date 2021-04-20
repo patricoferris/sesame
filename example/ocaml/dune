@@ -1,0 +1,5 @@
+(executable
+ (name main)
+ (libraries sesame current_web current_sesame current-sesame.github)
+ (preprocess
+  (pps ppx_deriving_yaml tyxml-ppx)))

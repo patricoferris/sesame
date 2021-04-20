@@ -1,7 +1,20 @@
 (library
  (name sesame)
  (public_name sesame)
- (libraries bos yaml tyxml fmt fmt.tty ptime jekyll-format camlimages.png
-   camlimages.jpeg)
+ (libraries
+  lwt
+  lwt.unix
+  yaml
+  cohttp
+  cohttp-lwt-unix
+  uri
+  fmt
+  fpath
+  tyxml
+  omd
+  jekyll-format
+  digestif
+  camlimages.png
+  camlimages.jpeg)
  (preprocess
-  (pps tyxml-ppx ppx_deriving_yaml)))
+  (pps tyxml-ppx ppx_deriving_yaml ppx_deriving_yojson)))

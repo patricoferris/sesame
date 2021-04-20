@@ -1,0 +1,24 @@
+(test
+ (name test)
+ (deps
+  (glob_files *.md))
+ (modules test test_collection testable)
+ (libraries alcotest-lwt sesame)
+ (preprocess
+  (pps ppx_deriving_yaml)))
+
+(executable
+ (name image)
+ (modules image)
+ (libraries sesame))
+
+(rule
+ (deps ./image.exe ./rory.jpeg ./expect-rory.jpeg)
+ (targets ./modified-rory.jpeg)
+ (action
+  (run ./image.exe)))
+
+(rule
+ (alias runtest)
+ (action
+  (diff ./expect-rory.jpeg ./modified-rory.jpeg)))
