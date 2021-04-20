@@ -29,8 +29,50 @@ You can now specify things like:
   module Html = Current_sesame.Make (H)
 ]}
 
-Building the resulting collection is then possible with a bit of OCurrent magic :) The [example/simple] directory
-contains the rest of the code that generates the output HTML and starts a hot-reloading watcher on the files too. 
+Building the resulting collection is then possible with a bit of OCurrent magic :) We can even 
+add a little watcher to get some hot-reloading goodness.
+
+{[
+let watcher = Current_sesame.Watcher.create ()
+
+(* ~~~ The pipeline ~~~ *)
+let pipeline dst () =
+  (* Build a collection and pass in the watcher to record the association *)
+  let c =
+    CC.build ~watcher ~label:"fetching collection"
+      (Fpath.v "data/index.md" |> Current.return)
+  in
+  (* Build the HTML from the collection using the default build functionality from Sesame *)
+  let html = HC.build ~label:"building html" c in
+  (* Save the HTML string to a file *)
+  Current_sesame.Local.save (Fpath.(dst / "index.html") |> Current.return) html
+]}
+
+After that you just add the traditional OCurrent boiler-plate and a little bit of mangling to get 
+the [Lwt_condition.t] variable to our development server and you are done!
+
+{[
+let main dst =
+  let dest = Fpath.v dst in
+  (* The OCurrent Engine *)
+  let engine = Current.Engine.create (pipeline dest) in
+  (* Tell the watcher to watch our data directory and get back
+     a condition variable that is broadcast to on changes *)
+  let f =
+    Lwt.map
+      (fun (f, cond, _) -> (f, cond))
+      (Current_sesame.Watcher.FS.watch ~watcher ~engine "data")
+  in
+  Lwt_main.run
+    (Lwt.choose
+       [
+         Current.Engine.thread engine;
+         Lwt_result.ok
+         @@ Lwt.bind f (fun (_, reload) ->
+                (* Pass the condition variable into the development server *)
+                Current_sesame.Server.dev_server ~port:8080 ~reload dst);
+       ])
+]}
 
 {1 Images}
 

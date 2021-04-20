@@ -79,16 +79,3 @@ module type Transformer = sig
 
   val transform : t -> (t, [ `Msg of string ]) Lwt_result.t
 end
-
-module Transform (M : Meta) = struct
-  module C = Make (M)
-
-  module Make (T : Transformer with type t = C.t) : S.S = struct
-    type t = C.Output.t
-
-    module Input = C.Output
-    module Output = C.Output
-
-    let build = T.transform
-  end
-end
