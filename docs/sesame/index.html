@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>index (sesame.index)</title><link rel="stylesheet" href="../odoc.css"/><meta charset="utf-8"/><meta name="generator" content="odoc 1.5.2"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><script src="../highlight.pack.js"></script><script>hljs.initHighlightingOnLoad();</script></head><body><div class="content"><header><nav><a href="../index.html">Up</a> – sesame</nav><h1 id="sesame"><a href="#sesame" class="anchor"></a>Sesame</h1><p>A library of tools for building smaller, greener, less resource intensive and more accessible website and blogs inspired by <a href="Low Tech Magazine]">https://solar.lowtechmagazine.com/</a>.</p><p>The scope of Sesame has somewhat changed quite bit, but at its core is a set of hopefully useful tools for building websites, that's it.</p><nav class="toc"><ul><li><a href="#a-simple-site">A Simple Site</a></li><li><a href="#modules">Modules</a></li></ul></nav></header><h2 id="a-simple-site"><a href="#a-simple-site" class="anchor"></a>A Simple Site</h2><p>Sesame aims to provide a very easy way to have a site built. It may not look the best, but under-the-hood it tries to do the heavy lifting so you just need to override the <code>build</code> functionality to do custom HTML.</p><pre><code class="ml">module Meta = struct
+  type t = { title : string } [@@deriving yaml]
+end
+
+module C = Sesame.Collection.Make (Meta)
+module H = Sesame.Collection.Html (Meta)
+
+let build () =
+  let open Lwt_result.Syntax in
+  let* c = C.build (Fpath.v &quot;data/index.md&quot;) in
+  let+ html = H.build c in
+  Fmt.(pf stdout &quot;%s&quot; html)
+
+let () =
+  match Lwt_main.run (build ()) with Ok _ -&gt; () | Error (`Msg m) -&gt; failwith m</code></pre><p>This is the <code>example/simple-sesame</code> site, it actually just prints the generated HTML to <code>stdout</code>. To do more with it you could override <code>H</code>'s <code>build</code> function. Something like:</p><pre><code class="ml">module H = struct
+  include Sesame.Collection.Html (Meta)
+
+  let build (t : C.t) =
+    let body =
+      let open Tyxml.Html in
+      [
+        h1 [ txt t.meta.title ];
+        div [ Unsafe.data (t.body |&gt; Omd.of_string |&gt; Omd.to_html) ];
+      ]
+    in
+    Sesame.Components.html ~lang:&quot;en&quot; ~css:&quot;/styles&quot; ~title:t.meta.title
+      ~description:&quot;home page&quot; ~body
+    |&gt; Fmt.str &quot;%a&quot; (Tyxml.Html.pp ())
+    |&gt; Lwt_result.return
+end</code></pre><p>The cool thing with overriding it is that you have access to the collection's metadata too!</p><h2 id="modules"><a href="#modules" class="anchor"></a>Modules</h2><ol><li><a href="Sesame/Collection/index.html"><code>Sesame.Collection</code></a>: tools for building collections with a type-checked metadata section</li><li><a href="Sesame/Image/index.html"><code>Sesame.Image</code></a>: tools for doing transformations like rescaling, dithering, quality changes etc. to images</li><li><a href="Sesame/Responsive/index.html"><code>Sesame.Responsive</code></a>: tools for building responsive images</li><li><a href="Sesame/Path/index.html"><code>Sesame.Path</code></a>: utility functions for mangling file paths</li><li><a href="Sesame/Transformer/index.html"><code>Sesame.Transformer</code></a>: markdown to markdown transformations to do things like add table of contents, change images for responsive ones</li><li><a href="Sesame/Components/index.html"><code>Sesame.Components</code></a>: some basic HTML componenets you may want to use</li></ol></div></body></html>
