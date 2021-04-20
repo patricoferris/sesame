@@ -16,7 +16,6 @@ module FS = struct
 
   let run_job ~watcher ~engine ~dir path =
     let path = Fpath.(v dir // path) in
-    print_endline (Fpath.to_string path);
     Hashtbl.iter (fun k _ -> print_endline (Fpath.to_string k)) watcher;
     let state = Current.Engine.state engine in
     let jobs = state.Current.Engine.jobs in

@@ -9,3 +9,8 @@ val change_filename :
 val drop_top_dir : Fpath.t -> Fpath.t
 (** [drop_top_dir path] removes the top directory from [path], if there is none
     it just returns the path back to you *)
+
+val join_relative : ?drop:bool -> Fpath.t -> Fpath.t -> Fpath.t
+(** [join_relative root rel] will join the base of [root] to [rel]. For example
+    if I have [a/b/c/index.md] and [../images/hello.jpg] then joining them
+    produced [a/b/c/../images/hello.jpg]*)

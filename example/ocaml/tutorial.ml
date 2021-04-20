@@ -29,6 +29,13 @@ module H = struct
                [ txt (Meta.user_to_string u) ])
            users)
     in
+    let conf =
+      Bos.OS.Dir.create (Fpath.v "ocaml.org/tutorials/images") |> ignore;
+      Sesame.Transformer.Image.v ~quality:60 ~path:(Fpath.v t.path)
+        ~dst:(Fpath.v "ocaml.org/tutorials/images")
+        Sesame.Responsive.Images.(MaxWidth (660, 400, Default 800))
+    in
+    let omd = Omd.of_string t.body |> Sesame.Transformer.Image.transform conf in
     let content =
       [
         Components.navbar;
@@ -41,9 +48,7 @@ module H = struct
               [
                 div
                   ~a:[ a_class [ "column"; "is-half-desktop" ] ]
-                  [
-                    div [ users; Unsafe.data Omd.(to_html (of_string t.body)) ];
-                  ];
+                  [ div [ users; Unsafe.data Omd.(to_html omd) ] ];
               ];
           ];
       ]

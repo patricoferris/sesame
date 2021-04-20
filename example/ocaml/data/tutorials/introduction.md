@@ -8,6 +8,8 @@ users:
 date: ""
 ---
 
+![The Camel is back, also optimised but by a different procedure](./images/camel.jpeg)
+
 You may follow along with this tutorial with just a basic OCaml installation,
 as described in [Up and Running](up_and_running.html).
 

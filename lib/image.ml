@@ -7,31 +7,33 @@ type t = {
 }
 
 let from_file path =
-  match Fpath.get_ext path with
-  | ".png" ->
-      let image =
-        OImages.rgb24 @@ OImages.make
-        @@ Png.load_as_rgb24 (Fpath.to_string path) []
-      in
-      {
-        ext = Images.Png;
-        path;
-        width = image#width;
-        height = image#height;
-        image;
-      }
-  | ".jpeg" | ".jpg" ->
-      let image =
-        OImages.rgb24 @@ OImages.make @@ Jpeg.load (Fpath.to_string path) []
-      in
-      {
-        ext = Images.Jpeg;
-        path;
-        width = image#width;
-        height = image#height;
-        image;
-      }
-  | s -> raise (Failure ("We don't currently support: " ^ s))
+  try
+    match Fpath.get_ext path with
+    | ".png" ->
+        let image =
+          OImages.rgb24 @@ OImages.make
+          @@ Png.load_as_rgb24 (Fpath.to_string path) []
+        in
+        {
+          ext = Images.Png;
+          path;
+          width = image#width;
+          height = image#height;
+          image;
+        }
+    | ".jpeg" | ".jpg" ->
+        let image =
+          OImages.rgb24 @@ OImages.make @@ Jpeg.load (Fpath.to_string path) []
+        in
+        {
+          ext = Images.Jpeg;
+          path;
+          width = image#width;
+          height = image#height;
+          image;
+        }
+    | s -> raise (Failure ("We don't currently support: " ^ s))
+  with _ -> failwith (Fmt.str "Failed to open %a" Fpath.pp path)
 
 let encode t =
   let yaml : Yaml.value =

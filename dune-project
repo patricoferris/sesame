@@ -35,6 +35,8 @@
  (description
   "Current-sesame builds on top of Sesame providing a toolkit of OCurrent-powered modules for building more complex pipelines that ultimately build websites")
  (depends
+  (irmin-watcher (>= 0.4.1))
+  (dream (>= ~dev))
   (ppx_deriving_yaml (and (>= 0.1.0) :with-test))
   (alcotest-lwt (and (>= 1.3.0) :with-test))
   (yojson (>= 1.7.0))

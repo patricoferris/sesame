@@ -16,9 +16,13 @@ module Images : sig
       create new resized images allowing with the media conditions to add to the
       image srcset attribute. *)
 
+  type conf = { root : Fpath.t; conf : Image.Transform.conf }
+  (** A slightly extended image conf, you need to also provide the file to which
+      the images are relative too. *)
+
   val v :
     alt:string ->
-    conf:Image.Transform.conf ->
+    conf:conf ->
     t ->
     (Fpath.t * [> Html_types.img ] Tyxml_html.elt) list
   (** [v ~alt ~conf t] applies the responsive image optimisations to all of the
