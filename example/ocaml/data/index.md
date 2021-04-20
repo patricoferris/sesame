@@ -2,7 +2,8 @@
 title: OCaml.org
 description: OCaml is an industrial-strength programming language supporting functional, imperative and object-oriented styles
 releases: Recent OCaml Releases
-heroImage: static/images/modified-camel.jpeg
+heroImage: static/images/camel.jpeg
+heroAlt: "An image of camel standing in the desert, the image has been dithered"
 ---
 
 ```ocaml

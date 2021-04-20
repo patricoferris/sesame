@@ -10,7 +10,7 @@ let filesize f = (Unix.stat f).st_size
 
 let transform () =
   let conf : Image.Transform.conf =
-    { quality = 30; prefix = "modified-"; files; dst = Fpath.v "./" }
+    { quality = 30; rename = ( ^ ) "modified-"; files; dst = Fpath.v "./" }
   in
   Image.Transform.transform ~conf [ Image.resize 200.; Image.dither ~levels:1 ]
 

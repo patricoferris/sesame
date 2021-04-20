@@ -18,8 +18,7 @@ module H = struct
   include Sesame.Collection.Html (Meta)
 
   let build (t : Input.t) =
-    let { Meta.title; users; _ } = t.meta in
-    let title = h1 [ txt title ] in
+    let { Meta.title; users; description; _ } = t.meta in
     let users =
       div
         ~a:[ a_class [ "user-list" ] ]
@@ -33,21 +32,17 @@ module H = struct
     let content =
       [
         Components.navbar;
+        Components.hero ~medium:false ~title description;
         section
           ~a:[ a_class [ "section" ] ]
           [
             div
-              ~a:[ a_class [ "content"; "columns" ] ]
+              ~a:[ a_class [ "content"; "columns"; "is-centered" ] ]
               [
                 div
-                  ~a:[ a_class [ "column"; "is-8"; "is-offset-2" ] ]
+                  ~a:[ a_class [ "column"; "is-half-desktop" ] ]
                   [
-                    div
-                      [
-                        title;
-                        users;
-                        Unsafe.data Omd.(to_html (of_string t.body));
-                      ];
+                    div [ users; Unsafe.data Omd.(to_html (of_string t.body)) ];
                   ];
               ];
           ];

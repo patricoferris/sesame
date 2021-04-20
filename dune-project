@@ -11,6 +11,9 @@
  (description
   "Sesame can build simple static sites from Jeykll-format documents")
  (depends
+  (alcotest-lwt (and (>= 1.3.0) :with-test))
+  (ppx_deriving_yojson (>= 3.6.1))
+  (digestif (>= 1.0.0))
   (yaml (>= 2.1.0))
   (uri (>= 4.1.0))
   (tyxml-ppx (>= 4.4.0))
@@ -32,6 +35,8 @@
  (description
   "Current-sesame builds on top of Sesame providing a toolkit of OCurrent-powered modules for building more complex pipelines that ultimately build websites")
  (depends
+  (ppx_deriving_yaml (and (>= 0.1.0) :with-test))
+  (alcotest-lwt (and (>= 1.3.0) :with-test))
   (yojson (>= 1.7.0))
   (ptime (>= 0.8.5))
   (ppx_deriving_yojson (>= 3.6.1))

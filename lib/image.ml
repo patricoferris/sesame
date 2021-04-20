@@ -130,13 +130,13 @@ let to_file ?(quality = 60) img output =
 module Transform = struct
   type conf = {
     quality : int;
-    prefix : string;
+    rename : string -> string;
     files : Fpath.t list;
     dst : Fpath.t;
   }
 
   let transform ~conf transforms =
-    let { quality; prefix; files; dst } = conf in
+    let { quality; rename; files; dst } = conf in
     List.iter
       (fun f ->
         let img =
@@ -144,7 +144,7 @@ module Transform = struct
           with Images.Wrong_file_type -> failwith (Fpath.to_string f)
         in
         let img = List.fold_left (fun a t -> t a) img transforms in
-        let output = Fpath.(dst / (prefix ^ Fpath.basename f)) in
+        let output = Fpath.(dst // Path.change_filename f rename) in
         try to_file ~quality img output with
         | Failure fail -> failwith (Fpath.to_string output ^ " " ^ fail)
         | f -> raise f)

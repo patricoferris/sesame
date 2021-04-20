@@ -73,3 +73,22 @@ module Html (M : Meta) = struct
     |> Fmt.str "%a" (Tyxml.Html.pp ())
     |> Lwt_result.return
 end
+
+module type Transformer = sig
+  type t
+
+  val transform : t -> (t, [ `Msg of string ]) Lwt_result.t
+end
+
+module Transform (M : Meta) = struct
+  module C = Make (M)
+
+  module Make (T : Transformer with type t = C.t) : S.S = struct
+    type t = C.Output.t
+
+    module Input = C.Output
+    module Output = C.Output
+
+    let build = T.transform
+  end
+end

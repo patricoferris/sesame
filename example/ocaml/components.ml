@@ -30,6 +30,8 @@ let navbar =
 
 open Html
 
+let responsive = [ "column"; "is-half-desktop" ]
+
 let title_author_date ~title ~author date =
   [
     h1 [ txt title ];
@@ -51,19 +53,36 @@ let two_column a b =
       div ~a:[ a_class [ "column"; "is-5" ] ] b;
     ]
 
-let hero ~title subtitle =
+let hero ?(medium = true) ~title subtitle =
   Html.section
-    ~a:[ a_class [ "hero"; "is-orange"; "is-halfheight" ] ]
+    ~a:
+      [
+        a_class
+          [ "hero"; "is-orange"; (if medium then "is-halfheight" else "") ];
+      ]
     [
       div
         ~a:[ a_class [ "hero-body" ] ]
         [
           div
+            ~a:
+              [
+                a_class [ "columns"; "is-centered" ];
+                a_style (if medium then "width: 100%" else "");
+              ]
             [
-              h1 ~a:[ a_class [ "title"; "has-text-white" ] ] [ txt title ];
-              h1
-                ~a:[ a_class [ "subtitle"; "has-text-white" ] ]
-                [ txt subtitle ];
+              div ~a:[ a_class responsive ]
+                [
+                  div
+                    [
+                      h1
+                        ~a:[ a_class [ "title"; "has-text-white" ] ]
+                        [ txt title ];
+                      h1
+                        ~a:[ a_class [ "subtitle"; "has-text-white" ] ]
+                        [ txt subtitle ];
+                    ];
+                ];
             ];
         ];
     ]
@@ -120,16 +139,17 @@ let centred_section content =
 
 let with_toc toc content =
   div
-    ~a:[ a_class [ "content"; "columns" ] ]
+    ~a:[ a_class [ "content"; "columns"; "is-centered" ] ]
     [
-      div ~a:[ a_class [ "column"; "is-3" ] ] toc;
-      div ~a:[ a_class [ "column"; "is-7"; "is-offset-1" ] ] content;
+      div ~a:[ a_class responsive ]
+        [
+          div
+            ~a:[ a_class [ "columns" ] ]
+            [
+              div ~a:[ a_class [ "column"; "is-3" ] ] toc;
+              div ~a:[ a_class [ "column"; "is-7"; "is-offset-1" ] ] content;
+            ];
+        ];
     ]
 
-let html_doc ?dev ~head content =
-  match dev with
-  | None -> html head (body content)
-  | Some port ->
-      html head
-        (body
-           (content @ [ script (txt @@ Current_sesame.Watcher.Js.script ~port) ]))
+let html_doc ~head content = html head (body content)

@@ -10,6 +10,9 @@ homepage: "https://github.com/patricoferris/sesame"
 bug-reports: "https://github.com/patricoferris/sesame/issues"
 depends: [
   "dune" {>= "2.7"}
+  "alcotest-lwt" {>= "1.3.0" & with-test}
+  "ppx_deriving_yojson" {>= "3.6.1"}
+  "digestif" {>= "1.0.0"}
   "yaml" {>= "2.1.0"}
   "uri" {>= "4.1.0"}
   "tyxml-ppx" {>= "4.4.0"}

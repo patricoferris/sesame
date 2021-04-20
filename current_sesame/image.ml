@@ -16,7 +16,7 @@ module Builder = struct
           [
             ("quality", `Int t.quality);
             ("dst", `String (Fpath.to_string t.dst));
-            ("prefix", `String t.prefix);
+            ("rename", `String (Fmt.str "hello becomes %s" (t.rename "hello")));
             ( "files",
               `List (List.map (fun t -> `String (Fpath.to_string t)) t.files) );
           ])

@@ -7,6 +7,7 @@ module Meta = struct
     description : string;
     releases : string;
     heroImage : string;
+    heroAlt : string;
   }
   [@@deriving yaml]
 end
@@ -103,6 +104,16 @@ module H = struct
     in
     aux n [] lst
 
+  let responsive_images ~f ~alt sizes =
+    let open Sesame in
+    let dst = Fpath.(v Conf.build_dir / "static" / "images") in
+    Bos.OS.Dir.create dst |> ignore;
+    let conf =
+      { Image.Transform.quality = 60; files = [ f ]; dst; rename = Fun.id }
+    in
+    let imgs = Responsive.Images.v ~alt ~conf sizes in
+    List.hd imgs |> snd
+
   let build ({ releases; content } : Input.t) =
     let github_releases =
       Array.map
@@ -135,7 +146,7 @@ module H = struct
     let github_panel =
       Components.panel ~title:"OCaml Releases" github_releases
     in
-    let { Meta.title; description; _ } = content.meta in
+    let { Meta.title; description; heroImage; heroAlt; _ } = content.meta in
     let hero = Components.hero ~title description in
     let rels = div [ github_panel ] in
     let content =
@@ -149,14 +160,33 @@ module H = struct
                 [
                   div
                     ~a:[ a_style "text-align: center;" ]
-                    [ img ~src:content.meta.heroImage ~alt:"A camel" () ];
+                    [
+                      responsive_images
+                        ~f:Fpath.(v Conf.src_dir // v heroImage)
+                        ~alt:heroAlt
+                        Sesame.Responsive.Images.(
+                          MaxWidth (660, 400, Default 800));
+                    ];
                 ]
                 [
-                  p
+                  div
+                    ~a:[ a_class [ "content" ] ]
                     [
-                      txt
-                        "An image that has been rescaled, monochromed and \
-                         dithered for your viewing pleasure";
+                      p
+                        [
+                          txt
+                            "The image of the camel has been made responsive \
+                             simply thanks to Sesame's API. It takes an image \
+                             source along with the desired sizes and \
+                             breakpoints and produces an image with srcset and \
+                             sizes for that image!";
+                        ];
+                      p
+                        [
+                          txt
+                            "Serving up the right size of image is a great way \
+                             to help save everyone bandwidth!";
+                        ];
                     ];
                 ];
             ]);

@@ -29,19 +29,18 @@ val dither : ?mode:dither -> ?color:color -> ?levels:int -> t -> t
 module Transform : sig
   type conf = {
     quality : int;
-    prefix : string;
+    rename : string -> string;
     files : Fpath.t list;
     dst : Fpath.t;
   }
   (** A configuration for transformations *)
 
   val transform : conf:conf -> (t -> t) list -> unit
-  (** [transform src ext dir transforms] will load all of the images in [src]
-    ending with [ext] extension, it will then apply the list of [transforms] to
-    the images before placing the output files in [dir]. The [prefix] option
-    lets you add a prefix to the output image filename, the default being
-    ["modified-"], the [quality] option let's you specify the jpeg quality
-    defaulting to [60] *)
+  (** [transform ~conf transforms] will load all of the images in [conf.files]
+      and it will then apply the list of [transforms] to the images before
+      placing the output files in [dir]. The [rename] option lets you specify a
+      function that renames the image, the [quality] option let's you specify
+      the jpeg quality defaulting to [60] *)
 end
 
 val encode : t -> string

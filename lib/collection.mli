@@ -21,3 +21,15 @@ module Html (M : Meta) : sig
   include
     S.S with type Input.t = Make(M).t and type t := t and type Output.t = t
 end
+
+module type Transformer = sig
+  type t
+
+  val transform : t -> (t, [ `Msg of string ]) Lwt_result.t
+end
+
+module Transform (M : Meta) : sig
+  module C : S.S
+
+  module Make (T : Transformer with type t = C.t) : S.S
+end
