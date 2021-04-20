@@ -16,17 +16,23 @@ functionality needed to work with [OCurrent]'s caching model.
 You can now specify things like: 
 
 {[
-  module Meta = struct 
-    type t = { title : string } [@@deriving yaml]
-  end 
+  (* A simple current-sesame pipeline that generate HTML 
+   from jekyll-format files and comes complete with hot-reloading *)
 
+  module Meta = struct
+    type t = { title : string } [@@deriving yaml]
+  end
+
+  (* First some boiler-plate to get the modules we need *)
+
+  (* Plain old Sesame modules that build a collection from a 
+     file and HTML from a collection *)
   module C = Sesame.Collection.Make (Meta)
   module H = Sesame.Collection.Html (Meta)
 
-  (* Produces a Collection from a Filesystem *)
-  module Fetch = Current_sesame.Make (C)
-  (* Produces HTML from a Collection *)
-  module Html = Current_sesame.Make (H)
+  (* OCurrent-powered versions with cachine and incremental building *)
+  module CC = Current_sesame.Make (C)
+  module HC = Current_sesame.Make (H)
 ]}
 
 Building the resulting collection is then possible with a bit of OCurrent magic :) We can even 

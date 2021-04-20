@@ -1,15 +1,21 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"><head><title>index (current-sesame.index)</title><link rel="stylesheet" href="../odoc.css"/><meta charset="utf-8"/><meta name="generator" content="odoc 1.5.2"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><script src="../highlight.pack.js"></script><script>hljs.initHighlightingOnLoad();</script></head><body><div class="content"><header><nav><a href="../index.html">Up</a> – current-sesame</nav><h1 id="top"><a href="#top" class="anchor"></a>Sesame x OCurrent</h1><p><code>Sesame</code> is a platform-agnostic tool providing a set of utilities for building websites. <a href="https://github.com/ocurrent/ocurrent">OCurrent</a> is a tool for building data-graphs expressing inputs and outputs to achieve incremental computation.</p><p><code>Current_sesame</code> is the bringing together of <code>OCurrent</code> and <code>Sesame</code> to build incremental site generators.</p><nav class="toc"><ul><li><a href="#collections">Collections</a></li><li><a href="#images">Images</a></li><li><a href="#server-and-watcher">Server and Watcher</a></li></ul></nav></header><h2 id="collections"><a href="#collections" class="anchor"></a>Collections</h2><p>Just like <a href="../sesame/Sesame/Collection/index.html"><code>Sesame.Collection</code></a>, <a href="Current_sesame/index.html"><code>Current_sesame</code></a> exposes an OCurrent-powered version via to <a href="Current_sesame/Make/index.html"><code>Current_sesame.Make</code></a> functor. Part of Sesame's redesign was to ensure some of the modules over in <a href="../sesame/Sesame/index.html"><code>Sesame</code></a> provided the functionality needed to work with <code>OCurrent</code>'s caching model.</p><p>You can now specify things like:</p><pre><code class="ml">module Meta = struct 
-  type t = { title : string } [@@deriving yaml]
-end 
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>index (current-sesame.index)</title><link rel="stylesheet" href="../odoc.css"/><meta charset="utf-8"/><meta name="generator" content="odoc 1.5.2"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><script src="../highlight.pack.js"></script><script>hljs.initHighlightingOnLoad();</script></head><body><div class="content"><header><nav><a href="../index.html">Up</a> – current-sesame</nav><h1 id="top"><a href="#top" class="anchor"></a>Sesame x OCurrent</h1><p><code>Sesame</code> is a platform-agnostic tool providing a set of utilities for building websites. <a href="https://github.com/ocurrent/ocurrent">OCurrent</a> is a tool for building data-graphs expressing inputs and outputs to achieve incremental computation.</p><p><code>Current_sesame</code> is the bringing together of <code>OCurrent</code> and <code>Sesame</code> to build incremental site generators.</p><nav class="toc"><ul><li><a href="#collections">Collections</a></li><li><a href="#images">Images</a></li><li><a href="#server-and-watcher">Server and Watcher</a></li></ul></nav></header><h2 id="collections"><a href="#collections" class="anchor"></a>Collections</h2><p>Just like <a href="../sesame/Sesame/Collection/index.html"><code>Sesame.Collection</code></a>, <a href="Current_sesame/index.html"><code>Current_sesame</code></a> exposes an OCurrent-powered version via to <a href="Current_sesame/Make/index.html"><code>Current_sesame.Make</code></a> functor. Part of Sesame's redesign was to ensure some of the modules over in <a href="../sesame/Sesame/index.html"><code>Sesame</code></a> provided the functionality needed to work with <code>OCurrent</code>'s caching model.</p><p>You can now specify things like:</p><pre><code class="ml">(* A simple current-sesame pipeline that generate HTML 
+ from jekyll-format files and comes complete with hot-reloading *)
 
+module Meta = struct
+  type t = { title : string } [@@deriving yaml]
+end
+
+(* First some boiler-plate to get the modules we need *)
+
+(* Plain old Sesame modules that build a collection from a 
+   file and HTML from a collection *)
 module C = Sesame.Collection.Make (Meta)
 module H = Sesame.Collection.Html (Meta)
 
-(* Produces a Collection from a Filesystem *)
-module Fetch = Current_sesame.Make (C)
-(* Produces HTML from a Collection *)
-module Html = Current_sesame.Make (H)</code></pre><p>Building the resulting collection is then possible with a bit of OCurrent magic :) We can even add a little watcher to get some hot-reloading goodness.</p><pre><code class="ml">let watcher = Current_sesame.Watcher.create ()
+(* OCurrent-powered versions with cachine and incremental building *)
+module CC = Current_sesame.Make (C)
+module HC = Current_sesame.Make (H)</code></pre><p>Building the resulting collection is then possible with a bit of OCurrent magic :) We can even add a little watcher to get some hot-reloading goodness.</p><pre><code class="ml">let watcher = Current_sesame.Watcher.create ()
 
 (* ~~~ The pipeline ~~~ *)
 let pipeline dst () =
