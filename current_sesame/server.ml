@@ -70,6 +70,6 @@ let dev_server ~port ~reload dir =
                      Dream.send "RELOAD" websocket >>= fun () ->
                      Dream.close_websocket websocket
                  | _ -> Dream.close_websocket websocket));
-         Dream.get "*" (static ~port dir);
+         Dream.get "/**" (static ~port dir);
        ]
   @@ fun _ -> Dream.respond ~status:`Not_Found ""

@@ -1,15 +1,23 @@
-type t = (string, string list) Hashtbl.t
+let src =
+  Logs.Src.create "sesame.watch"
+    ~doc:"Current sesame file watcer"
+
+module Log = (val Logs.src_log src : Logs.LOG)
+
+type t = (Fpath.t, string list) Hashtbl.t
 
 let create () = Hashtbl.create 256
 
-let record ~path ~job_id watcher = Hashtbl.replace watcher path job_id
+let record ~path ~job_id watcher = 
+  Hashtbl.replace watcher path job_id
 
 let get_job_id x =
   let open Current.Syntax in
   let+ md = Current.Analysis.metadata x in
   match md with Some { Current.Metadata.job_id; _ } -> job_id | None -> None
 
-let job_id ~path watcher = Hashtbl.find_opt watcher path
+let job_id ~path watcher = 
+  Hashtbl.find_opt watcher path
 
 module FS = struct
   open Lwt.Infix
@@ -20,8 +28,9 @@ module FS = struct
     let state = Current.Engine.state engine in
     let jobs = state.Current.Engine.jobs in
     match job_id ~path watcher with
-    | None -> print_endline "hmmm no file or job"
+    | None  -> Log.info (fun f -> f "No job found for %a" Fpath.pp path)
     | Some job_id -> (
+        Log.info (fun f -> f "Rebuilding %s because of changes to %a" job_id Fpath.pp path);
         let job = Current.Job.Map.find job_id jobs in
         match job#rebuild with
         | None -> ()

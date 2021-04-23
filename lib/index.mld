@@ -60,5 +60,6 @@ The cool thing with overriding it is that you have access to the collection's me
 + {! Sesame.Responsive}: tools for building responsive images 
 + {! Sesame.Path}: utility functions for mangling file paths 
 + {! Sesame.Transformer}: markdown to markdown transformations to do things like add table of contents, change images for responsive ones
++ {! Sesame.Utils}: provides useful functions and importantly some predefined {! Sesame.S.S} modules for common format like {! Sesame.Utils.Json} and {! Sesame.Utils.Yml}.
 + {! Sesame.Components}: some basic HTML componenets you may want to use
 

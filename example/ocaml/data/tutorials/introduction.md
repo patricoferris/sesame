@@ -14,11 +14,11 @@ You may follow along with this tutorial with just a basic OCaml installation,
 as described in [Up and Running](up_and_running.html).
 
 Alternatively, you may follow almost all of it by running OCaml in your browser
-using [TryOCaml](http://try.ocamlpro.com), with no installation required.
+using [TryOCaml](http://try.ocamlpro.com), with no installation required!!!
 
 ## Running OCaml programs
 
-To try small OCaml expressions, you can use an interactive top level, or REPL
+To try small OCaml  expressions, you can use an interactive top level, or REPL
 (Read-Eval-Print Loop). The `ocaml` command provides a basic top level (you
 should install `rlwrap` through your system package manager and run `rlwrap
 ocaml` instead to get history navigation.)

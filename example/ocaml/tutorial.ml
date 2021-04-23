@@ -54,35 +54,20 @@ module H = struct
       ]
     in
     Components.(html_doc ~head:(simple_head ~t:t.meta.title) content)
-    |> Fmt.str "%a" (Tyxml.Html.pp ())
+    |> fun html ->
+    A.{ path = t.path; html = Fmt.str "%a" (Tyxml.Html.pp ()) html }
     |> Lwt_result.return
 end
 
 module C = Sesame.Collection.Make (Meta)
-module Fetch = Current_sesame.Make (C)
-module Html = Current_sesame.Make (H)
-
-let build_tutorials ~dst ts =
-  let t =
-    List.map
-      (fun f ->
-        let path =
-          Current.map
-            (fun b ->
-              Fpath.(dst // Sesame.Utils.filename_to_html (Fpath.v b.C.A.path)))
-            f
-        in
-        let html = Html.build ~label:"Building Blogposts" f in
-        Current_sesame.Local.save path html)
-      ts
-  in
-  t
+module Fetch = Current_sesame.Make_watch (Sesame.Utils.Dir (C))
+module Html = Current_sesame.Make (Sesame.Utils.List (H))
 
 module Index = struct
-  let to_html (ts : C.t Current.t list) =
+  let to_html (ts : C.t list Current.t) =
     let open Current.Syntax in
     Current.component "Index File"
-    |> let> ts = Current.list_seq ts in
+    |> let> ts = ts in
        let head = Components.simple_head ~t:"Blog Posts" in
        let body =
          [

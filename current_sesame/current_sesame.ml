@@ -50,6 +50,16 @@ module Make (V : Sesame.Types.S) = struct
   open Current.Syntax
   module C = Cache (V)
 
+  let build ?(label = "Fetching Data") input =
+    Current.component "%s" label
+    |> let> input = input in
+       C.get No_context input
+end
+
+module Make_watch (V : Sesame.Types.S with type Input.t = Fpath.t) = struct
+  open Current.Syntax
+  module C = Cache (V)
+
   let build ?watcher ?(label = "Fetching Data") path =
     let build =
       Current.component "%s" label
@@ -65,8 +75,16 @@ module Make (V : Sesame.Types.S) = struct
             | Some job_id ->
                 Current.bind
                   (fun path ->
+                    (* Record directory or file *)
                     Watcher.record ~path ~job_id watcher;
-                    build)
+                    (* Record contents of directory if it is one *)
+                    Bos.OS.Dir.contents path |> function
+                    | Ok fs ->
+                        List.iter
+                          (fun path -> Watcher.record ~path ~job_id watcher)
+                          fs;
+                        build
+                    | _ -> build)
                   path)
           (Watcher.get_job_id build)
 end

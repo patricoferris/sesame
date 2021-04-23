@@ -33,3 +33,114 @@ module Fpath_input = struct
 
   let pp = Fpath.pp
 end
+
+module Json = struct
+  open Lwt.Infix
+  module Input = Fpath_input
+
+  type t = Ezjsonm.value
+
+  module Output = struct
+    type t = Ezjsonm.value
+
+    let encode t = Ezjsonm.value_to_string t
+
+    let decode s = Ezjsonm.value_from_string s
+
+    let pp ppf t = Fmt.pf ppf "%s" (encode t)
+  end
+
+  let build file =
+    Lwt_io.(
+      with_file ~mode:input (Fpath.to_string file) @@ fun channel ->
+      Lwt_io.read channel >>= fun s ->
+      Lwt_result.return (Ezjsonm.value_from_string s))
+end
+
+module Dir (T : S.S with type Input.t = Fpath.t) = struct
+  open Lwt.Infix
+  module Input = T.Input
+
+  type t = T.Output.t list
+
+  module Output = struct
+    type t = T.Output.t list
+
+    let encode ts =
+      Ezjsonm.value_to_string
+        (`A (List.map (fun t -> `String (T.Output.encode t)) ts))
+
+    let decode str =
+      match Ezjsonm.value_from_string str with
+      | `A lst ->
+          List.map
+            (function
+              | `String s -> T.Output.decode s
+              | _ -> failwith "Expected strings")
+            lst
+      | _ -> failwith "Failed to decode value"
+
+    let pp = Fmt.list T.Output.pp
+  end
+
+  let build dir =
+    let files =
+      Bos.OS.Dir.contents dir |> Rresult.R.get_ok
+      |> List.filter (fun f -> not (Sys.is_directory @@ Fpath.to_string f))
+    in
+    Lwt_list.filter_map_p
+      (fun file -> T.build file >|= Rresult.R.to_option)
+      files
+    |> Lwt_result.ok
+end
+
+module List (T : S.S) = struct
+  open Lwt.Infix
+
+  module Input = struct
+    type t = T.Input.t list
+
+    let encode ts =
+      Ezjsonm.value_to_string
+        (`A (List.map (fun t -> `String (T.Input.encode t)) ts))
+
+    let decode str =
+      match Ezjsonm.value_from_string str with
+      | `A lst ->
+          List.map
+            (function
+              | `String s -> T.Input.decode s | _ -> failwith "Expected strings")
+            lst
+      | _ -> failwith "Failed to decode value"
+
+    let pp = Fmt.list T.Input.pp
+  end
+
+  type t = T.Output.t list
+
+  module Output = struct
+    type t = T.Output.t list
+
+    let encode ts =
+      Ezjsonm.value_to_string
+        (`A (List.map (fun t -> `String (T.Output.encode t)) ts))
+
+    let decode str =
+      match Ezjsonm.value_from_string str with
+      | `A lst ->
+          List.map
+            (function
+              | `String s -> T.Output.decode s
+              | _ -> failwith "Expected strings")
+            lst
+      | _ -> failwith "Failed to decode value"
+
+    let pp = Fmt.list T.Output.pp
+  end
+
+  let build inputs =
+    Lwt_list.filter_map_p
+      (fun file -> T.build file >|= Rresult.R.to_option)
+      inputs
+    |> Lwt_result.ok
+end
