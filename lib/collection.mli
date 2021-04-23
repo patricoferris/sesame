@@ -36,11 +36,16 @@ end
 (** {2 Make HTML Output}
 
     The [HTML] functor generates a string of HTML based on some metadata (i.e. a
-    collection) *)
+    collection), it also passes through the original path of the collection the
+    HTML was generated from. *)
 
 module Html (M : Meta) : sig
-  type t = string
+  module A : sig
+    type t = { path : string; html : string }
+  end
+
+  type t = A.t
 
   include
-    S.S with type Input.t = Make(M).t and type t := t and type Output.t = t
+    S.S with type Input.t = Make(M).t and type t := A.t and type Output.t = A.t
 end

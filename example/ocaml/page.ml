@@ -92,7 +92,7 @@ module H = struct
       | _ -> failwith "Error decoding"
   end
 
-  type t = string
+  type t = Html.Output.t
 
   module Output = Html.Output
 
@@ -124,7 +124,7 @@ module H = struct
     let imgs = Responsive.Images.v ~alt ~conf sizes in
     List.hd imgs |> snd
 
-  let build ({ releases; content } : Input.t) =
+  let build ({ releases; content = t } : Input.t) =
     let github_releases =
       Array.map
         (function
@@ -156,7 +156,7 @@ module H = struct
     let github_panel =
       Components.panel ~title:"OCaml Releases" github_releases
     in
-    let { Meta.title; description; heroImage; heroAlt; _ } = content.meta in
+    let { Meta.title; description; heroImage; heroAlt; _ } = t.meta in
     let hero = Components.hero ~title description in
     let rels = div [ github_panel ] in
     let content =
@@ -173,7 +173,7 @@ module H = struct
                     [
                       responsive_images
                         ~f:Fpath.(v heroImage)
-                        ~root:content.path ~alt:heroAlt
+                        ~root:t.path ~alt:heroAlt
                         Sesame.Responsive.Images.(
                           MaxWidth (660, 400, Default 800));
                     ];
@@ -204,17 +204,15 @@ module H = struct
           section
             [
               two_column
-                [
-                  div [ Unsafe.data (Omd.to_html (Omd.of_string content.body)) ];
-                ]
+                [ div [ Unsafe.data (Omd.to_html (Omd.of_string t.body)) ] ]
                 [ rels ];
             ]);
       ]
     in
-    Components.(html_doc ~head:(simple_head ~t:title) content)
-    |> Fmt.str "%a" (Tyxml.Html.pp ())
+    Components.(html_doc ~head:(simple_head ~t:title) content) |> fun html ->
+    { Html.A.path = t.path; html = Fmt.str "%a" (Tyxml.Html.pp ()) html }
     |> Lwt_result.return
 end
 
-module Fetch = Current_sesame.Make (C)
+module Fetch = Current_sesame.Make_watch (C)
 module Build = Current_sesame.Make (H)

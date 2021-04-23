@@ -5,28 +5,25 @@ let watcher = Current_sesame.Watcher.create ()
 (* Blog posts *)
 let tutorials ~src ~dst =
   Bos.OS.Dir.create dst |> ignore;
-  let files =
-    Bos.OS.Dir.contents src |> Rresult.R.get_ok
-    |> List.filter (fun f -> not (Sys.is_directory @@ Fpath.to_string f))
-  in
-  let blogs =
-    List.map
-      (fun src ->
-        ( Fpath.to_string src,
-          Tutorial.Fetch.build ~watcher ~label:"Fetching Tutorials"
-            (Current.return src) ))
-      files
+  let tutorials =
+    Tutorial.Fetch.build ~watcher ~label:"Fetching Tutorials"
+      (Current.return src)
   in
   let index_path = Fpath.(dst / "index.html") |> Current.return in
   let index =
-    Tutorial.Index.to_html (List.map snd blogs)
-    |> Current_sesame.Local.save index_path
+    Tutorial.Index.to_html tutorials |> Current_sesame.Local.save index_path
   in
   let builds =
-    Tutorial.build_tutorials ~dst (List.map snd blogs)
-    |> List.map2 (fun (path, _) x -> (path, x)) blogs
+    Tutorial.Html.build tutorials
+    |> Current.map (fun lst ->
+           List.map
+             (fun { Tutorial.H.A.path; html } ->
+               (Fpath.(dst // Sesame.Utils.filename_to_html (v path)), html))
+             lst)
   in
-  Current.all_labelled (builds @ [ ("Index", index) ])
+  let saves = Current_sesame.Local.save_list builds in
+  Current.all_labelled
+    ([ ("Tutorials", saves) ] @ [ ("Tutorials Index", index) ])
 
 (* Generic Pages *)
 let pages token =
@@ -63,7 +60,7 @@ let pages token =
     [
       Current_sesame.Local.save
         (Fpath.v "ocaml.org/index.html" |> Current.return)
-        index;
+        (Current.map (fun Page.Html.A.{ html; _ } -> html) index);
       Current_sesame.Local.save
         (Fpath.v "ocaml.org/changes.html" |> Current.return)
         changes;
@@ -120,7 +117,7 @@ let run dev =
          [
            Lwt_result.ok
            @@ Lwt.bind f (fun (_, reload) ->
-                  Current_sesame.Server.dev_server ~port:8080 ~reload
+                  Current_sesame.Server.dev_server ~port:8082 ~reload
                     "./ocaml.org");
          ]
        else [] ))
