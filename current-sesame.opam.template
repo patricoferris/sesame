@@ -1,3 +1,0 @@
-pin-depends: [
-  ["dream.dev" "git+https://github.com/aantron/dream"]
-]
