@@ -28,7 +28,7 @@
   (cohttp (>= 4.0.0))
   (camlimages (>= 5.0.4))
   (alcotest :with-test)
-  (bos :with-test)))
+  bos))
 (package
  (name current-sesame)
  (synopsis "The OCurrent-powered Static Site Generator")
@@ -36,6 +36,7 @@
   "Current-sesame builds on top of Sesame providing a toolkit of OCurrent-powered modules for building more complex pipelines that ultimately build websites")
  (depends
   (irmin-watcher (>= 0.4.1))
+  (sesame (= :version))
   (dream (>= ~dev))
   (ppx_deriving_yaml (and (>= 0.1.0) :with-test))
   (alcotest-lwt (and (>= 1.3.0) :with-test))

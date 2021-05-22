@@ -27,7 +27,7 @@ depends: [
   "cohttp" {>= "4.0.0"}
   "camlimages" {>= "5.0.4"}
   "alcotest" {with-test}
-  "bos" {with-test}
+  "bos"
   "odoc" {with-doc}
 ]
 build: [
