@@ -21,7 +21,7 @@
   (ppx_deriving_yaml (>= 0.1.0))
   (omd (>= 2.0.0~alpha1))
   (lwt (>= 5.4.0))
-  (jekyll-format (>= 0.1.0))
+  (jekyll-format (>= 0.2.0))
   (fpath (>= 0.7.3))
   (fmt (>= 0.8.9))
   (cohttp-lwt-unix (>= 4.0.0))
