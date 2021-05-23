@@ -1,3 +1,0 @@
-pin-depends: [
-  ["jekyll-format.dev" "git+https://github.com/avsm/jekyll-format"]
-]
