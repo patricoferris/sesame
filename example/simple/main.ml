@@ -9,8 +9,8 @@ end
 
 module C = Sesame.Collection.Make (Meta)
 module H = Sesame.Collection.Html (Meta)
-module CC = Current_sesame.Make (C)
-module HC = Current_sesame.Make (H)
+module CC = Current_sesame.Make_watch (C)
+module HC = Current_sesame.Make(H)
 
 (* Next a file path watcher, this will trigger rebuilds on saves *)
 
@@ -24,7 +24,7 @@ let pipeline dst () =
       (Fpath.v "data/index.md" |> Current.return)
   in
   (* Build the HTML from the collection using the default build functionality from Sesame *)
-  let html = HC.build ~label:"building html" c in
+  let html = HC.build ~label:"building html" c |> Current.map (fun h -> h.H.A.html) in
   (* Save the HTML string to a file *)
   Current_sesame.Local.save (Fpath.(dst / "index.html") |> Current.return) html
 
