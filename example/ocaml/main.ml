@@ -17,7 +17,7 @@ let tutorials ~src ~dst =
     Tutorial.Html.build tutorials
     |> Current.map (fun lst ->
            List.map
-             (fun { Tutorial.H.A.path; html } ->
+             (fun { Tutorial.H.path; html } ->
                (Fpath.(dst // Sesame.Utils.filename_to_html (v path)), html))
              lst)
   in
@@ -60,7 +60,7 @@ let pages token =
     [
       Current_sesame.Local.save
         (Fpath.v "ocaml.org/index.html" |> Current.return)
-        (Current.map (fun Page.Html.A.{ html; _ } -> html) index);
+        (Current.map (fun Page.Html.{ html; _ } -> html) index);
       Current_sesame.Local.save
         (Fpath.v "ocaml.org/changes.html" |> Current.return)
         changes;
