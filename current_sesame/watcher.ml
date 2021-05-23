@@ -28,7 +28,7 @@ module FS = struct
     let state = Current.Engine.state engine in
     let jobs = state.Current.Engine.jobs in
     match job_id ~path watcher with
-    | None  -> Log.info (fun f -> f "No job found for %a" Fpath.pp path)
+    | None -> Log.info (fun f -> f "No job found for %a" Fpath.pp path)
     | Some job_id -> (
         Log.info (fun f -> f "Rebuilding %s because of changes to %a" job_id Fpath.pp path);
         let job = Current.Job.Map.find job_id jobs in

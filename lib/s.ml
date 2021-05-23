@@ -20,5 +20,6 @@ module type S = sig
   module Output : Encodeable with type t = t
 
   val build : Input.t -> (Output.t, [ `Msg of string ]) Lwt_result.t
-  (** [build t] takes the data [t] and produces an output depending on the [Value.t] *)
+  (** [build t] takes the data [t] and produces an output depending on the
+      [Value.t] *)
 end
