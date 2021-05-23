@@ -14,18 +14,14 @@ module Make (M : Meta) = struct
 
   let meta_to_yaml = M.to_yaml
 
-  module A = struct
-    type t = { path : string; meta : meta; body : string } [@@deriving yaml]
-  end
-
-  type t = A.t
+  type t = { path : string; meta : meta; body : string } [@@deriving yaml]
 
   module Output = struct
-    type t = A.t
+    type nonrec t = t
 
-    let encode t = A.to_yaml t |> Yaml.to_string_exn
+    let encode t = to_yaml t |> Yaml.to_string_exn
 
-    let decode s = Yaml.of_string_exn s |> A.of_yaml |> Rresult.R.get_ok
+    let decode s = Yaml.of_string_exn s |> of_yaml |> Rresult.R.get_ok
 
     let pp ppf t = Fmt.pf ppf "%s" (encode t)
   end
@@ -35,7 +31,7 @@ module Make (M : Meta) = struct
     | Ok data -> (
         match M.of_yaml Jf.(fields_to_yaml (fields data)) with
         | Ok meta ->
-            Ok { A.path = Fpath.to_string file; meta; body = Jf.body data }
+            Ok { path = Fpath.to_string file; meta; body = Jf.body data }
         | Error (`Msg m) -> Error (`Msg m) )
     | Error (`Msg m) -> Error (`Msg m)
 
@@ -49,18 +45,14 @@ module Html (M : Meta) = struct
   module C = Make (M)
   module Input = C.Output
 
-  module A = struct
-    type t = { path : string; html : string } [@@deriving yaml]
-  end
-
-  type t = A.t
+  type t = { path : string; html : string } [@@deriving yaml]
 
   module Output = struct
-    type t = A.t
+    type nonrec t = t
 
-    let encode t = A.to_yaml t |> Yaml.to_string_exn
+    let encode t = to_yaml t |> Yaml.to_string_exn
 
-    let decode s = Yaml.of_string_exn s |> A.of_yaml |> Rresult.R.get_ok
+    let decode s = Yaml.of_string_exn s |> of_yaml |> Rresult.R.get_ok
 
     let pp ppf t = Fmt.pf ppf "%s" (encode t)
   end
@@ -75,6 +67,6 @@ module Html (M : Meta) = struct
     Components.html ~lang:"en" ~css:"/styles" ~title:"Main"
       ~description:"home page" ~body
     |> fun html ->
-    { A.path = t.path; html = Fmt.str "%a" (Tyxml.Html.pp ()) html }
+    { path = t.path; html = Fmt.str "%a" (Tyxml.Html.pp ()) html }
     |> Lwt_result.return
 end

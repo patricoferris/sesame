@@ -210,7 +210,7 @@ module H = struct
       ]
     in
     Components.(html_doc ~head:(simple_head ~t:title) content) |> fun html ->
-    { Html.A.path = t.path; html = Fmt.str "%a" (Tyxml.Html.pp ()) html }
+    { Html.path = t.path; html = Fmt.str "%a" (Tyxml.Html.pp ()) html }
     |> Lwt_result.return
 end
 

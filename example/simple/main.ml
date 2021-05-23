@@ -25,7 +25,7 @@ let pipeline dst () =
   in
   (* Build the HTML from the collection using the default build functionality from Sesame *)
   let html =
-    HC.build ~label:"building html" c |> Current.map (fun h -> h.H.A.html)
+    HC.build ~label:"building html" c |> Current.map (fun h -> h.H.html)
   in
   (* Save the HTML string to a file *)
   Current_sesame.Local.save (Fpath.(dst / "index.html") |> Current.return) html
