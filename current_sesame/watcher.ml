@@ -22,6 +22,12 @@ let job_id ~path watcher =
 module FS = struct
   open Lwt.Infix
 
+  type t = { 
+    f : unit -> unit Lwt.t;
+    cond : unit Lwt_condition.t;
+    unwatch : unit -> unit Lwt.t;
+  }
+
   let run_job ~watcher ~engine ~dir path =
     let path = Fpath.(v dir // path) in
     Hashtbl.iter (fun k _ -> print_endline (Fpath.to_string k)) watcher;
@@ -53,7 +59,7 @@ module FS = struct
       in
       aux ()
     in
-    (f, cond, unwatch)
+    { f; cond; unwatch }
 end
 
 module Js = struct

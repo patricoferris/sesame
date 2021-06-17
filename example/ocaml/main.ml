@@ -111,18 +111,18 @@ let run dev =
   let engine = Current.Engine.create (pipeline ~token) in
   let f =
     Lwt.map
-      (fun (f, cond, _) -> (f, cond))
+      (fun Current_sesame.Watcher.FS.{ f; cond; _ } -> (f, cond))
       (Current_sesame.Watcher.FS.watch ~watcher ~engine "data")
   in
   let routes = Current_web.routes engine in
   let site = Current_web.Site.v ~name:"OCaml.org Builder" ~has_role routes in
   Lwt_main.run
     (Lwt.choose
-       ( [
-           Current.Engine.thread engine;
-           Current_web.run ~mode:(`TCP (`Port 8081)) site;
-           Lwt_result.ok @@ Lwt.bind f (fun (f, _) -> f ());
-         ]
+       ([
+          Current.Engine.thread engine;
+          Current_web.run ~mode:(`TCP (`Port 8081)) site;
+          Lwt_result.ok @@ Lwt.bind f (fun (f, _) -> f ());
+        ]
        @
        if dev then
          [
@@ -131,7 +131,7 @@ let run dev =
                   Current_sesame.Server.dev_server ~port:8082 ~reload
                     "./ocaml.org");
          ]
-       else [] ))
+       else []))
 
 open Cmdliner
 

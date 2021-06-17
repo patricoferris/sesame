@@ -15,7 +15,7 @@ let rec html_path ?(dir = None) path =
       | _ :: rst ->
           html_path ~dir:None
             (List.fold_left (fun acc seg -> Fpath.(acc / seg)) t rst)
-      | _ -> failwith "Error" )
+      | _ -> failwith "Error")
 
 let filename_to_html path =
   let path = Fpath.filename path |> Fpath.v in

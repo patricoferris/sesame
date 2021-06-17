@@ -30,7 +30,8 @@ module Make (C : Cohttp_lwt.S.Client) : sig
     conf:conf ->
     parse:(Yojson.Basic.t -> 'a) ->
     query:string ->
-    Yojson.Basic.t -> ('a, [> `Msg of string ]) result Lwt.t
+    Yojson.Basic.t ->
+    ('a, [> `Msg of string ]) result Lwt.t
 
   module FileContentQuery : sig
     val get :

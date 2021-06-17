@@ -25,7 +25,7 @@ let save_list lst =
                   | Ok () ->
                       Log.info (fun f -> f "Updated %a" Fpath.pp path);
                       (Ok (), None)
-                  | Error _ as e -> (e, None) ))
+                  | Error _ as e -> (e, None)))
             paths
         |> fun _ -> (Ok (), None) )
 

@@ -32,7 +32,7 @@ module Make (M : Meta) = struct
         match M.of_yaml Jf.(fields_to_yaml (fields data)) with
         | Ok meta ->
             Ok { path = Fpath.to_string file; meta; body = Jf.body data }
-        | Error (`Msg m) -> Error (`Msg m) )
+        | Error (`Msg m) -> Error (`Msg m))
     | Error (`Msg m) -> Error (`Msg m)
 
   let build file =
