@@ -111,7 +111,7 @@ type panel_item = {
 let panel ~title items =
   nav
     ~a:[ a_class [ "panel" ] ]
-    ( [ p ~a:[ a_class [ "panel-heading" ] ] [ txt title ] ]
+    ([ p ~a:[ a_class [ "panel-heading" ] ] [ txt title ] ]
     @ List.map
         (fun { link; icon; text } ->
           a
@@ -126,7 +126,7 @@ let panel ~title items =
                 ];
               text;
             ])
-        items )
+        items)
 
 let centred_section content =
   Html.section

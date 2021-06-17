@@ -36,7 +36,7 @@ let static ~port local_root request =
       | None -> (
           match Dream.path request with
           | [] | [ "/" ] | [ "" ] -> aux ~once:true (Some "index.html")
-          | _ -> Dream.respond ~status:`Not_Found "" )
+          | _ -> Dream.respond ~status:`Not_Found "")
       | Some path -> (
           loader ~port local_root path request >>= fun response ->
           match Dream.status response with
@@ -53,7 +53,7 @@ let static ~port local_root request =
               else
                 aux ~once:true
                   (validate_path (Dream.path request @ [ "index.html" ]))
-          | _ -> Lwt.return response )
+          | _ -> Lwt.return response)
     in
     aux (validate_path (Dream.path request))
 

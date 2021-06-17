@@ -142,8 +142,7 @@ module H = struct
                             ~a:[ a_class [ "has-text-grey" ] ]
                             [
                               txt
-                                (Fmt.str "(%a)" (Ptime.pp_human ())
-                                   x.created_at);
+                                (Fmt.str "(%a)" (Ptime.pp_human ()) x.created_at);
                             ];
                         ];
                     icon = "fa-box-open";

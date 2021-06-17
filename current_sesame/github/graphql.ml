@@ -1,5 +1,4 @@
-open Lwt.Infix
-[@warning "-32"]
+open Lwt.Infix [@warning "-32"]
 
 module Date = struct
   type t = Ptime.t
@@ -47,9 +46,7 @@ module Make (C : Cohttp_lwt.S.Client) = struct
   let run_query ~conf ~parse ~query variables =
     let uri = Uri.of_string "https://api.github.com/graphql" in
     let headers = make_headers ~conf in
-    let body =
-      `Assoc [ ("query", `String query); ("variables", variables) ]
-    in
+    let body = `Assoc [ ("query", `String query); ("variables", variables) ] in
     let body = `String (Yojson.Basic.to_string body) in
     C.post ~headers ~body uri >>= fun (resp, body) ->
     Cohttp_lwt.Body.to_string body >|= fun body ->
@@ -67,7 +64,7 @@ module Make (C : Cohttp_lwt.S.Client) = struct
         with
         | Failure err -> Error (`Msg err)
         | Yojson.Json_error err -> Error (`Msg err)
-        | Yojson.Basic.Util.Type_error (err, _) -> Error (`Msg err) )
+        | Yojson.Basic.Util.Type_error (err, _) -> Error (`Msg err))
 
   module FileContentQuery = struct
     module Q =
@@ -84,14 +81,15 @@ module Make (C : Cohttp_lwt.S.Client) = struct
       }
     |}]
 
-    let get ~conf ~branch file = 
+    let get ~conf ~branch file =
       run_query ~conf ~parse:Q.unsafe_fromJson ~query:Q.query
       @@ (Q.makeVariables ~owner:conf.owner ~repo:conf.repo
-           ~file:(Fmt.str "%s:%s" branch file)
-           () |> Q.serializeVariables |> Q.variablesToJson)
+            ~file:(Fmt.str "%s:%s" branch file)
+            ()
+         |> Q.serializeVariables |> Q.variablesToJson)
       >>= function
       | Ok response -> (
-        let response = Q.parse response in 
+          let response = Q.parse response in
           match response.repository with
           | Some repo -> (
               match repo.file with
@@ -99,8 +97,8 @@ module Make (C : Cohttp_lwt.S.Client) = struct
               | Some (`UnspecifiedFragment b) ->
                   Lwt.return
                     (Error (`Msg (Fmt.str "Unspecified Fragment %s" b)))
-              | None -> Lwt_result.return None )
-          | None -> Lwt.return (Ok None) )
+              | None -> Lwt_result.return None)
+          | None -> Lwt.return (Ok None))
       | Error e -> Lwt.return (Error e)
   end
   [@warning "-32"]
@@ -121,17 +119,18 @@ module Make (C : Cohttp_lwt.S.Client) = struct
     let get ~conf ~branch file =
       run_query ~conf ~parse:Q.unsafe_fromJson ~query:Q.query
       @@ (Q.makeVariables ~owner:conf.owner ~repo:conf.repo
-           ~file:(Fmt.str "%s:%s" branch file)
-           () |> Q.serializeVariables |> Q.variablesToJson)
+            ~file:(Fmt.str "%s:%s" branch file)
+            ()
+         |> Q.serializeVariables |> Q.variablesToJson)
       >>= function
       | Ok response -> (
-        let response = Q.parse response in
+          let response = Q.parse response in
           match response.repository with
           | Some repo -> (
               match repo.file with
               | Some s -> Lwt.return (Ok (Some s.id))
-              | None -> Lwt_result.return None )
-          | None -> Lwt.return (Ok None) )
+              | None -> Lwt_result.return None)
+          | None -> Lwt.return (Ok None))
       | Error e -> Lwt.return (Error e)
   end
   [@warning "-32"]
@@ -152,10 +151,12 @@ module Make (C : Cohttp_lwt.S.Client) = struct
     }|}]
 
     let get ~conf =
-      run_query ~conf ~parse:Q.unsafe_fromJson ~query:Q.query @@ (Q.makeVariables ~owner:conf.owner ~repo:conf.repo () |> Q.serializeVariables |> Q.variablesToJson)
+      run_query ~conf ~parse:Q.unsafe_fromJson ~query:Q.query
+      @@ (Q.makeVariables ~owner:conf.owner ~repo:conf.repo ()
+         |> Q.serializeVariables |> Q.variablesToJson)
       >>= function
       | Ok response -> (
-        let response = Q.parse response in 
+          let response = Q.parse response in
           match response.repository with
           | Some repo -> (
               match repo.tree with
@@ -167,12 +168,12 @@ module Make (C : Cohttp_lwt.S.Client) = struct
                         (Ok
                            (Array.map
                               (fun t -> { Api.Files.name = t.Q.name })
-                              arr)) )
+                              arr)))
               | Some (`UnspecifiedFragment b) ->
                   Lwt.return
                     (Error (`Msg (Fmt.str "Unspecified Fragment %s" b)))
-              | None -> Lwt_result.return [||] )
-          | None -> Lwt.return (Ok [||]) )
+              | None -> Lwt_result.return [||])
+          | None -> Lwt.return (Ok [||]))
       | Error e -> Lwt.return (Error e)
   end
   [@warning "-32"]
@@ -202,10 +203,12 @@ module Make (C : Cohttp_lwt.S.Client) = struct
 
     let get ~conf =
       let ( >>!= ) = Option.bind in
-      run_query ~conf ~parse:Q.unsafe_fromJson ~query:Q.query @@ (Q.makeVariables ~owner:conf.owner ~repo:conf.repo () |> Q.serializeVariables |> Q.variablesToJson)
+      run_query ~conf ~parse:Q.unsafe_fromJson ~query:Q.query
+      @@ (Q.makeVariables ~owner:conf.owner ~repo:conf.repo ()
+         |> Q.serializeVariables |> Q.variablesToJson)
       >>= function
       | Ok response ->
-        let response = Q.parse response in 
+          let response = Q.parse response in
           let resp =
             response.repository >>!= fun repo ->
             repo.refs >>!= fun refs ->

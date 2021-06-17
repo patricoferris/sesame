@@ -87,8 +87,8 @@ module Index = struct
                                 Fpath.(
                                   v "/" / Conf.tutorial_dir
                                   / Fpath.filename
-                                      ( Sesame.Utils.filename_to_html
-                                      @@ Fpath.v t.path ))
+                                      (Sesame.Utils.filename_to_html
+                                     @@ Fpath.v t.path))
                               in
                               li
                                 ~a:[ a_style "list-style: none" ]

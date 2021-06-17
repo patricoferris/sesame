@@ -31,25 +31,23 @@ let pipeline dst () =
   Current_sesame.Local.save (Fpath.(dst / "index.html") |> Current.return) html
 
 let main dst =
+  let open Lwt.Syntax in
   let dest = Fpath.v dst in
   (* The OCurrent Engine *)
   let engine = Current.Engine.create (pipeline dest) in
   (* Tell the watcher to watch our data directory and get back
      a condition variable that is broadcast to on changes *)
-  let f =
-    Lwt.map
-      (fun (f, cond, _) -> (f, cond))
-      (Current_sesame.Watcher.FS.watch ~watcher ~engine "data")
-  in
   Lwt_main.run
-    (Lwt.choose
+    (let* { f; cond = reload; _ } =
+       Current_sesame.Watcher.FS.watch ~watcher ~engine "data"
+     in
+     Lwt.choose
        [
          Current.Engine.thread engine;
-         Lwt_result.ok @@ Lwt.bind f (fun (f, _) -> f ());
+         Lwt_result.ok @@ f ();
          Lwt_result.ok
-         @@ Lwt.bind f (fun (_, reload) ->
-                (* Pass the condition variable into the development server *)
-                Current_sesame.Server.dev_server ~port:8080 ~reload dst);
+         @@ (* Pass the condition variable into the development server *)
+         Current_sesame.Server.dev_server ~port:8080 ~reload dst;
        ])
 
 open Cmdliner

@@ -43,8 +43,8 @@ let encode t =
         ( "image",
           (* Hashing the image contents... ? *)
           `String
-            ( Bytes.to_string t.image#dump
-            |> Digestif.SHA1.digest_string |> Digestif.SHA1.to_raw_string ) );
+            (Bytes.to_string t.image#dump
+            |> Digestif.SHA1.digest_string |> Digestif.SHA1.to_raw_string) );
       ]
   in
   Fmt.str "%a" Yaml.pp yaml

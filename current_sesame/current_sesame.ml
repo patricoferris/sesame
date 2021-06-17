@@ -68,23 +68,19 @@ module Make_watch (V : Sesame.Types.S with type Input.t = Fpath.t) = struct
     in
     match watcher with
     | None -> build
-    | Some watcher ->
-        Current.bind
-          (function
-            | None -> build
-            | Some job_id ->
-                Current.bind
-                  (fun path ->
-                    (* Record directory or file *)
-                    Watcher.record ~path ~job_id watcher;
-                    (* Record contents of directory if it is one *)
-                    Bos.OS.Dir.contents path |> function
-                    | Ok fs ->
-                        List.iter
-                          (fun path -> Watcher.record ~path ~job_id watcher)
-                          fs;
-                        build
-                    | _ -> build)
-                  path)
-          (Watcher.get_job_id build)
+    | Some watcher -> (
+        Current.component "Watching"
+        |> let** job = Watcher.get_job_id build and* path = path in
+           match job with
+           | None -> build
+           | Some job_id -> (
+               Watcher.record ~path ~job_id watcher;
+               (* Record contents of directory if it is one *)
+               Bos.OS.Dir.contents path |> function
+               | Ok fs ->
+                   List.iter
+                     (fun path -> Watcher.record ~path ~job_id watcher)
+                     fs;
+                   build
+               | _ -> build))
 end

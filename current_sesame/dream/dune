@@ -1,0 +1,4 @@
+(library
+ (name current_dream)
+ (public_name current-sesame.dream)
+ (libraries current.cache dream))
