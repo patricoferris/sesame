@@ -67,7 +67,7 @@
   (sesame
    (= :version))
   (dream
-   (>= ~dev))
+   (>= 1.0.0~alpha2))
   (ppx_deriving_yaml
    (and
     (>= 0.1.0)

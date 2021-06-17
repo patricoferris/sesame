@@ -3,7 +3,7 @@ module Date : sig
 
   val parse : Yojson.Basic.t -> t
 
-  val serialisize : t -> Yojson.Basic.t
+  val serialize : t -> Yojson.Basic.t
 end
 
 module Url : sig
@@ -11,7 +11,7 @@ module Url : sig
 
   val parse : Yojson.Basic.t -> t
 
-  val serialisize : t -> Yojson.Basic.t
+  val serialize : t -> Yojson.Basic.t
 end
 
 type 'a res = ('a, [ `Msg of string ]) result
@@ -28,11 +28,9 @@ type conf = {
 module Make (C : Cohttp_lwt.S.Client) : sig
   val run_query :
     conf:conf ->
-    < parse : Yojson.Basic.t -> 'a
-    ; query : string
-    ; variables : Yojson.Basic.t
-    ; .. > ->
-    'a res Lwt.t
+    parse:(Yojson.Basic.t -> 'a) ->
+    query:string ->
+    Yojson.Basic.t -> ('a, [> `Msg of string ]) result Lwt.t
 
   module FileContentQuery : sig
     val get :

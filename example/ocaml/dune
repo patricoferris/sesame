@@ -4,4 +4,4 @@
  (preprocess
   (pps ppx_deriving_yaml tyxml-ppx)))
 
-(data_only_dirs ocaml)
+(data_only_dirs ocaml var)
