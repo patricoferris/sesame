@@ -11,7 +11,7 @@ module Date = struct
 
   let parse = of_json_exn
 
-  let serialisize t = `String (Ptime.to_rfc3339 t)
+  let serialize t = `String (Ptime.to_rfc3339 t)
 end
 
 module Url = struct
@@ -21,7 +21,7 @@ module Url = struct
     | `String s -> Uri.of_string s
     | _ -> Fmt.failwith "Expected a string"
 
-  let serialisize t = `String (Uri.to_string t)
+  let serialize t = `String (Uri.to_string t)
 end
 
 type 'a res = ('a, [ `Msg of string ]) result
@@ -44,11 +44,11 @@ module Make (C : Cohttp_lwt.S.Client) = struct
     ]
     |> Cohttp.Header.of_list
 
-  let run_query ~conf query =
+  let run_query ~conf ~parse ~query variables =
     let uri = Uri.of_string "https://api.github.com/graphql" in
     let headers = make_headers ~conf in
     let body =
-      `Assoc [ ("query", `String query#query); ("variables", query#variables) ]
+      `Assoc [ ("query", `String query); ("variables", variables) ]
     in
     let body = `String (Yojson.Basic.to_string body) in
     C.post ~headers ~body uri >>= fun (resp, body) ->
@@ -63,7 +63,7 @@ module Make (C : Cohttp_lwt.S.Client) = struct
           Log.info (fun f -> f " [ POST ] Status: 200");
           Yojson.Basic.from_string body
           |> Yojson.Basic.Util.member "data"
-          |> query#parse |> Result.ok
+          |> parse |> Result.ok
         with
         | Failure err -> Error (`Msg err)
         | Yojson.Json_error err -> Error (`Msg err)
@@ -84,17 +84,18 @@ module Make (C : Cohttp_lwt.S.Client) = struct
       }
     |}]
 
-    let get ~conf ~branch file =
-      run_query ~conf
-      @@ Q.make ~owner:conf.owner ~repo:conf.repo
+    let get ~conf ~branch file = 
+      run_query ~conf ~parse:Q.unsafe_fromJson ~query:Q.query
+      @@ (Q.makeVariables ~owner:conf.owner ~repo:conf.repo
            ~file:(Fmt.str "%s:%s" branch file)
-           ()
+           () |> Q.serializeVariables |> Q.variablesToJson)
       >>= function
       | Ok response -> (
-          match response#repository with
+        let response = Q.parse response in 
+          match response.repository with
           | Some repo -> (
-              match repo#file with
-              | Some (`Blob b) -> Lwt.return (Ok (Some (`Blob b#text)))
+              match repo.file with
+              | Some (`Blob b) -> Lwt.return (Ok (Some (`Blob b.text)))
               | Some (`UnspecifiedFragment b) ->
                   Lwt.return
                     (Error (`Msg (Fmt.str "Unspecified Fragment %s" b)))
@@ -118,16 +119,17 @@ module Make (C : Cohttp_lwt.S.Client) = struct
     |}]
 
     let get ~conf ~branch file =
-      run_query ~conf
-      @@ Q.make ~owner:conf.owner ~repo:conf.repo
+      run_query ~conf ~parse:Q.unsafe_fromJson ~query:Q.query
+      @@ (Q.makeVariables ~owner:conf.owner ~repo:conf.repo
            ~file:(Fmt.str "%s:%s" branch file)
-           ()
+           () |> Q.serializeVariables |> Q.variablesToJson)
       >>= function
       | Ok response -> (
-          match response#repository with
+        let response = Q.parse response in
+          match response.repository with
           | Some repo -> (
-              match repo#file with
-              | Some s -> Lwt.return (Ok (Some s#id))
+              match repo.file with
+              | Some s -> Lwt.return (Ok (Some s.id))
               | None -> Lwt_result.return None )
           | None -> Lwt.return (Ok None) )
       | Error e -> Lwt.return (Error e)
@@ -150,20 +152,21 @@ module Make (C : Cohttp_lwt.S.Client) = struct
     }|}]
 
     let get ~conf =
-      run_query ~conf @@ Q.make ~owner:conf.owner ~repo:conf.repo ()
+      run_query ~conf ~parse:Q.unsafe_fromJson ~query:Q.query @@ (Q.makeVariables ~owner:conf.owner ~repo:conf.repo () |> Q.serializeVariables |> Q.variablesToJson)
       >>= function
       | Ok response -> (
-          match response#repository with
+        let response = Q.parse response in 
+          match response.repository with
           | Some repo -> (
-              match repo#tree with
+              match repo.tree with
               | Some (`Tree t) -> (
-                  match t#entries with
+                  match t.entries with
                   | None -> Lwt.return (Ok [||])
                   | Some arr ->
                       Lwt.return
                         (Ok
                            (Array.map
-                              (fun t -> { Api.Files.name = t#name })
+                              (fun t -> { Api.Files.name = t.Q.name })
                               arr)) )
               | Some (`UnspecifiedFragment b) ->
                   Lwt.return
@@ -199,27 +202,28 @@ module Make (C : Cohttp_lwt.S.Client) = struct
 
     let get ~conf =
       let ( >>!= ) = Option.bind in
-      run_query ~conf @@ Q.make ~owner:conf.owner ~repo:conf.repo ()
+      run_query ~conf ~parse:Q.unsafe_fromJson ~query:Q.query @@ (Q.makeVariables ~owner:conf.owner ~repo:conf.repo () |> Q.serializeVariables |> Q.variablesToJson)
       >>= function
       | Ok response ->
+        let response = Q.parse response in 
           let resp =
-            response#repository >>!= fun repo ->
-            repo#refs >>!= fun refs ->
-            refs#nodes >>!= fun nodes ->
+            response.repository >>!= fun repo ->
+            repo.refs >>!= fun refs ->
+            refs.nodes >>!= fun nodes ->
             Some
               (Array.map
-                 (fun x ->
+                 (fun (x : Q.t_repository_refs_nodes option) ->
                    x >>!= fun x ->
-                   x#repository#releases#nodes >>!= fun ts ->
+                   x.repository.releases.nodes >>!= fun ts ->
                    Some
                      (Array.map
                         (fun t ->
                           t >>!= fun t ->
                           Some
                             {
-                              Api.Release.name = Option.get t#name;
-                              created_at = t#createdAt;
-                              url = t#url;
+                              Api.Release.name = Option.get t.Q.name;
+                              created_at = t.createdAt;
+                              url = t.url;
                             })
                         ts))
                  nodes)
