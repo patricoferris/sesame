@@ -3,10 +3,22 @@
 (library
  (name github)
  (public_name current-sesame.github)
- (libraries cohttp-lwt current.cache base64 ptime yojson fmt logs)
+ (libraries
+  cohttp-lwt
+  current.cache
+  current_git
+  base64
+  ptime
+  yojson
+  fmt
+  logs)
  (preprocess
-  (pps ppx_deriving_yojson graphql_ppx -- -schema
-    current_sesame/github/schema.json))
+  (pps
+   ppx_deriving_yojson
+   graphql_ppx
+   --
+   -schema
+   current_sesame/github/schema.json))
  (preprocessor_deps
   (file schema.json)))
 

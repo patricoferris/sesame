@@ -24,6 +24,7 @@ depends: [
   "current" {>= "0.4"}
   "cohttp-lwt" {>= "4.0.0"}
   "base64" {>= "3.5.0"}
+  "current_git"
   "alcotest" {with-test}
   "bos" {with-test}
   "odoc" {with-doc}

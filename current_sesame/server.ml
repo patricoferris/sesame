@@ -67,7 +67,7 @@ let dev_server ~port ~reload dir =
                  | Some _ ->
                      Lwt_condition.wait reload >>= fun _ ->
                      Lwt_unix.sleep 0.2 >>= fun _ ->
-                     Dream.send websocket "RELOAD" >>= fun () ->
+                     Dream.send "RELOAD" websocket >>= fun () ->
                      Dream.close_websocket websocket
                  | _ -> Dream.close_websocket websocket));
          Dream.get "/**" (static ~port dir);
