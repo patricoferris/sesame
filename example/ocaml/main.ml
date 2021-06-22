@@ -84,19 +84,8 @@ let copy ~src ~dst =
   Current.all_labelled ws
 
 let pipeline ~token () =
-  let repo =
-    Bos.OS.Dir.create @@ Fpath.v "ocaml" |> ignore;
-    Current.map (fun _ -> ())
-    @@ Github.Repository.(
-         clone
-           ~schedule:
-             (Current_cache.Schedule.v ~valid_for:(Duration.of_day 1) ())
-           (v ~name:"OCaml" ~branch:"trunk" ~repo:"git://github.com/ocaml/ocaml"
-              (Fpath.v "ocaml")))
-  in
   Current.all
     [
-      repo;
       tutorials ~src:(Fpath.v "data/tutorials")
         ~dst:Fpath.(v "ocaml.org" / Conf.tutorial_dir);
       pages token;
