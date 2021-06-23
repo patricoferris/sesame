@@ -1,0 +1,4 @@
+(library
+ (name git)
+ (public_name current-sesame.git)
+ (libraries sesame current_git))
