@@ -17,7 +17,7 @@ module H = struct
       ]
     in
     Sesame.Components.html ~lang:"en" ~css:"/styles" ~title:t.meta.title
-      ~description:"home page" ~body
+      ~description:"home page" ~body ()
     |> Fmt.str "%a" (Tyxml.Html.pp ())
     |> Lwt_result.return
 end

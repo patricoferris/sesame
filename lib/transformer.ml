@@ -10,29 +10,27 @@ module Toc = struct
   let get_int = function H (i, _) -> i
 
   let toc doc =
+    let open Omd in
     let rec loop acc = function
       | [] -> List.rev acc
-      | (b : Omd.block) :: bs -> (
-          match b.bl_desc with
-          | Omd.Heading (s, il) -> (
-              match il.il_desc with
-              | Omd.Text heading -> loop (H (s, heading) :: acc) bs
+      | (b : attributes block) :: bs -> (
+          match b with
+          | Heading (_attrs, s, il) -> (
+              match il with
+              | Text (_, heading) -> loop (H (s, heading) :: acc) bs
               | _ -> loop acc bs)
           | _ -> loop acc bs)
     in
     loop [] doc
 
   let transform doc =
-    let f (b : Omd.block) =
-      match b.bl_desc with
-      | Omd.Heading (_s, il) -> (
-          match il.il_desc with
-          | Omd.Text heading ->
-              {
-                b with
-                bl_attributes =
-                  ("id", Utils.title_to_dirname heading) :: b.bl_attributes;
-              }
+    let open Omd in
+    let f (b : attributes block) =
+      match b with
+      | Heading (attrs, s, il) -> (
+          match il with
+          | Text (_, heading) ->
+              Heading (("id", Utils.title_to_dirname heading) :: attrs, s, il)
           | _ -> b)
       | _ -> b
     in
@@ -151,25 +149,22 @@ module Image = struct
     }
 
   let transform t blocks =
-    let f (b : Omd.block) =
+    let open Omd in
+    let f (b : attributes block) =
       let make_img img =
         let html = Fmt.str "%a" (Tyxml.Html.pp_elt ()) img in
-        Omd.Html html
+        Html ([], html)
       in
-      match b.bl_desc with
-      | Omd.Paragraph ({ il_desc; _ } as il) -> (
-          match il_desc with
-          | Omd.Image { label = { il_desc = Omd.Text alt; _ }; destination; _ }
-            ->
+      match b with
+      | Paragraph (attrs, il) -> (
+          match il with
+          | Omd.Image (_, { label = Omd.Text (_, alt); destination; _ }) ->
               let conf = { t.conf with files = [ Fpath.v destination ] } in
               let conf = Responsive.Images.{ conf; root = t.path } in
               let img =
                 Responsive.Images.v ~alt ~conf t.responsive |> List.hd |> snd
               in
-              {
-                b with
-                bl_desc = Omd.Paragraph { il with il_desc = make_img img };
-              }
+              Paragraph (attrs, make_img img)
           | _ -> b)
       | _ -> b
     in
