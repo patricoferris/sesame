@@ -1,6 +1,6 @@
 open Tyxml
 
-let html ?(lang = "en") ?(css = "/styles") ~title ~description ~body =
+let html ?(lang = "en") ?(css = "/styles") ~title ~description ~body () =
   [%html {| 
     <!DOCTYPE html> 
     <html lang='|} lang {|'>

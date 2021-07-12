@@ -65,7 +65,7 @@ module Html (M : Meta) = struct
       ]
     in
     Components.html ~lang:"en" ~css:"/styles" ~title:"Main"
-      ~description:"home page" ~body
+      ~description:"home page" ~body ()
     |> fun html ->
     { path = t.path; html = Fmt.str "%a" (Tyxml.Html.pp ()) html }
     |> Lwt_result.return
