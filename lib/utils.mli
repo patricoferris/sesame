@@ -18,7 +18,12 @@ module Fpath_input : S.Encodeable with type t = Fpath.t
 (** A {!S.S} compliant module for JSON (using [Ezjson.value]) *)
 module Json : S.S with type Input.t = Fpath.t and type t = Ezjsonm.value
 
+(** Build a module that will build things from a directory of files *)
 module Dir (T : S.S with type Input.t = Fpath.t) :
+  S.S with type Input.t = Fpath.t and type t = T.Output.t list
+
+(** Same as {! Dir} except will recursively search the directory for files*)
+module RecDir (T : S.S with type Input.t = Fpath.t) :
   S.S with type Input.t = Fpath.t and type t = T.Output.t list
 
 module List (T : S.S) :

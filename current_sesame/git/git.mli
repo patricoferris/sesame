@@ -4,7 +4,7 @@ module Make (FS : With_fs) : sig
   val get :
     ?schedule:Current_cache.Schedule.t ->
     ?label:string ->
-    (Fpath.t -> Fpath.t) ->
+    Fpath.t option ->
     Current_git.Commit.t Current.t ->
     FS.t Current.t
   (** [get f repo] will attempt to build from the locally cloned repository
