@@ -8,8 +8,8 @@ type t = (Fpath.t, string list) Hashtbl.t
 
 let create () = Hashtbl.create 256
 
-let record ~path ~job_id watcher = 
-  Hashtbl.replace watcher path job_id
+let record ~path ~job_id watcher =
+  Hashtbl.replace watcher (Fpath.normalize path) job_id
 
 let get_job_id x =
   let open Current.Syntax in
@@ -17,7 +17,7 @@ let get_job_id x =
   match md with Some { Current.Metadata.job_id; _ } -> job_id | None -> None
 
 let job_id ~path watcher = 
-  Hashtbl.find_opt watcher path
+  Hashtbl.find_opt watcher (Fpath.normalize path)
 
 module FS = struct
   open Lwt.Infix
