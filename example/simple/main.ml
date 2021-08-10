@@ -1,4 +1,4 @@
-(* A simple current-sesame pipeline that generate HTML 
+(* A simple current-sesame pipeline that generate HTML
    from jekyll-format files and comes complete with hot-reloading *)
 
 module Meta = struct

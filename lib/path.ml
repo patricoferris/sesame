@@ -5,6 +5,12 @@ let change_filename ?(keep_path = true) f rename =
   in
   if keep_path then Fpath.(rest // f) else f
 
+let last_dir_and_file path =
+  let prefix =
+    Fpath.find_prefix path (Fpath.parent @@ Fpath.parent path) |> Option.get
+  in
+  Fpath.rem_prefix prefix path |> Option.get
+
 let drop_top_dir path =
   let rec aux = function
     | "." :: rest -> aux rest

@@ -22,7 +22,7 @@ module Json : S.S with type Input.t = Fpath.t and type t = Ezjsonm.value
 module Dir (T : S.S with type Input.t = Fpath.t) :
   S.S with type Input.t = Fpath.t and type t = T.Output.t list
 
-(** Same as {! Dir} except will recursively search the directory for files*)
+(** Same as {!Dir} except will recursively search the directory for files*)
 module RecDir (T : S.S with type Input.t = Fpath.t) :
   S.S with type Input.t = Fpath.t and type t = T.Output.t list
 
