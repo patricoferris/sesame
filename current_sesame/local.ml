@@ -8,7 +8,7 @@ module Log = (val Logs.src_log src : Logs.LOG)
 
 let save = Current_fs.save
 
-let save_list lst =
+let save_list ?(create_dirs = false) lst =
   Current.component "save files"
   |> let> paths = lst in
      Current_incr.const
@@ -21,6 +21,9 @@ let save_list lst =
               | Error _ as e when Bos.OS.File.exists path = Ok true -> (e, None)
               | _ -> (
                   (* Old contents differ, or file doesn't exist. *)
+                  if create_dirs then
+                    Bos.OS.Dir.create ~path:true (Fpath.parent path) |> ignore
+                  else ();
                   match Bos.OS.File.write path value with
                   | Ok () ->
                       Log.info (fun f -> f "Updated %a" Fpath.pp path);

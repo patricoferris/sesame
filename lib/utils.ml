@@ -100,14 +100,15 @@ module RecDir (T : S.S with type Input.t = Fpath.t) = struct
 
   let build dir =
     let files =
-      Bos.OS.Dir.fold_contents (fun p acc -> p :: acc) [] dir |> Rresult.R.get_ok
+      Bos.OS.Dir.fold_contents (fun p acc -> p :: acc) [] dir
+      |> Rresult.R.get_ok
       |> List.filter (fun f -> not (Sys.is_directory @@ Fpath.to_string f))
     in
     Lwt_list.filter_map_p
       (fun file -> T.build file >|= Rresult.R.to_option)
       files
     |> Lwt_result.ok
-end 
+end
 
 module List (T : S.S) = struct
   open Lwt.Infix
