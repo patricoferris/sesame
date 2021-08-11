@@ -76,7 +76,10 @@ module Make_watch (V : Sesame.Types.S with type Input.t = Fpath.t) = struct
            | Some job_id -> (
                Watcher.record ~path ~job_id watcher;
                (* Record contents of directory if it is one *)
-              Bos.OS.Dir.fold_contents (fun path () -> Watcher.record ~path ~job_id watcher) () path |> function
+               Bos.OS.Dir.fold_contents
+                 (fun path () -> Watcher.record ~path ~job_id watcher)
+                 () path
+               |> function
                | Ok () -> build
                | _ -> build))
 end

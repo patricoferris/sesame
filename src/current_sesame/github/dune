@@ -6,7 +6,7 @@
  (libraries cohttp-lwt current.cache current_git base64 ptime yojson fmt logs)
  (preprocess
   (pps ppx_deriving_yojson graphql_ppx -- -schema
-    current_sesame/github/schema.json))
+    ./src/current_sesame/github/schema.json))
  (preprocessor_deps
   (file schema.json)))
 
