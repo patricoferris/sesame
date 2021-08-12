@@ -1,10 +1,9 @@
 _build
 .merlin
-examples
 .vscode 
 .DS_Store
 ocurrent
 dist 
 docy
 styles.css
-example/ocaml/ocaml
+examples/ocaml/ocaml
