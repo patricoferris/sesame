@@ -132,7 +132,7 @@ module List (T : S.S) = struct
     let pp = Fmt.list T.Input.pp
   end
 
-  type t = T.Output.t list
+  type t = T.t list
 
   module Output = struct
     type t = T.Output.t list

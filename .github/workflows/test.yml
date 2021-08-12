@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     steps:
     - uses: actions/checkout@v2
-    - uses: avsm/setup-ocaml@v1
+    - uses: avsm/setup-ocaml@v2
       with:
         ocaml-version: ${{ matrix.ocaml-version }}
     - name: Pinning Package

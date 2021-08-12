@@ -1,0 +1,5 @@
+(executable
+ (name main)
+ (libraries sesame)
+ (preprocess
+  (pps ppx_deriving_yaml)))

@@ -37,6 +37,6 @@ Once upon a time...
 
 From there it's up to you how the HTML is generated. Why not have a read of: 
 
- - The more [complete Sesame tutorial](https://patricoferris.github.io/sesame/sesame/index.html)
- - The [OCurrent-powered Site generator tutorial](https://patricoferris.github.io/sesame/current-sesame/index.html)
- - Or dive deep into a thorough example and read the source code for the "fake" ocaml.org site in `examples/ocaml`. 
+ - The more [complete Sesame tutorial](https://patricoferris.github.io/sesame/sesame/index.html).
+ - The [OCurrent-powered Site generator tutorial](https://patricoferris.github.io/sesame/current-sesame/index.html).
+ - The `examples` directory is also a good place to start.
