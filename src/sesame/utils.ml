@@ -99,11 +99,13 @@ module RecDir (T : S.S with type Input.t = Fpath.t) = struct
   include Dir (T)
 
   let build dir =
+    Logs.info (fun f -> f "Building from %a" Fpath.pp dir);
     let files =
       Bos.OS.Dir.fold_contents (fun p acc -> p :: acc) [] dir
       |> Rresult.R.get_ok
       |> List.filter (fun f -> not (Sys.is_directory @@ Fpath.to_string f))
     in
+    Logs.info (fun f -> f "Found %a" Fmt.(list Fpath.pp) files);
     Lwt_list.filter_map_p
       (fun file -> T.build file >|= Rresult.R.to_option)
       files
