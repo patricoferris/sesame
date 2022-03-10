@@ -22,8 +22,8 @@ module H = Sesame.Collection.Html (Meta)
 let build () =
   let open Lwt_result.Syntax in
   let* c = C.build (Fpath.v "data/index.md") in
-  let+ html = H.build c in
-  Fmt.(pf stdout "%s" html)
+  let+ build = H.build c in
+  Fmt.(pf stdout "%s" build.html)
 
 let () =
   match Lwt_main.run (build ()) with Ok _ -> () | Error (`Msg m) -> failwith m
