@@ -30,16 +30,16 @@ module Images = struct
     let { Image.Transform.quality; rename; files; dst } = conf.conf in
     List.iter
       (fun f ->
-        let f = Path.(join_relative ~drop:false conf.root f) in
         let resize size =
           let img =
+            let f = Path.(join_relative ~drop:false conf.root f) in
             try Image.from_file f
             with Images.Wrong_file_type -> failwith (Fpath.to_string f)
           in
           let img = Image.resize size img in
           let rename s = rename s |> rename_by_size (int_of_float size) in
           let output =
-            Fpath.(dst // Path.change_filename ~keep_path:false f rename)
+            Fpath.(dst // Path.change_filename f rename)
           in
           try Image.to_file ~quality img output with
           | Failure fail -> failwith (Fpath.to_string output ^ " " ^ fail)
